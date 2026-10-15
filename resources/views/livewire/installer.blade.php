@@ -22,41 +22,43 @@
     </div>
 
     @if ($this->step->type === \App\Installer\StepType::Requirements)
-        @if ($this->report === null)
-            <p class="mt-6 rounded-lg border border-red-300 bg-red-50 p-4 text-red-800 dark:border-red-800 dark:bg-red-950 dark:text-red-200">
-                The host report is missing, so the installer can't tell whether this host can run the app.
-                Start the installer with lpod, which runs <code>lpod doctor --json</code> first.
+        @unless ($this->report->fromHost)
+            <p class="mt-6 rounded-lg border border-zinc-200 p-4 text-sm dark:border-zinc-800">
+                These checks come from what the installer can see through the Podman socket.
+                For a full check, run <code>lpod doctor</code> on the host, or start the installer with <code>lpod installer</code>.
             </p>
-        @else
-            <ul class="mt-6 space-y-3">
-                @foreach ($this->report->checks as $check)
-                    <li wire:key="check-{{ $check->id }}" class="rounded-lg border border-zinc-200 p-4 dark:border-zinc-800">
-                        <p class="flex gap-2">
-                            <span @class([
-                                'font-bold',
-                                'text-green-600' => $check->status === \App\Installer\CheckStatus::Ok,
-                                'text-amber-600' => $check->status === \App\Installer\CheckStatus::Warn,
-                                'text-red-600' => $check->status === \App\Installer\CheckStatus::Fail,
-                            ])>{{ match ($check->status) {
-                                \App\Installer\CheckStatus::Ok => '✓',
-                                \App\Installer\CheckStatus::Warn => '!',
-                                \App\Installer\CheckStatus::Fail => '✗',
-                            } }}</span>
-                            <span>{{ $check->message }}</span>
-                        </p>
+        @endunless
 
-                        @if ($check->fix !== '')
-                            <pre class="mt-2 overflow-x-auto rounded bg-zinc-100 p-3 text-sm dark:bg-zinc-900"><code>{{ $check->fix }}</code></pre>
-                        @endif
-                    </li>
-                @endforeach
-            </ul>
+        <ul class="mt-6 space-y-3">
+            @foreach ($this->report->checks as $check)
+                <li wire:key="check-{{ $check->id }}" class="rounded-lg border border-zinc-200 p-4 dark:border-zinc-800">
+                    <p class="flex gap-2">
+                        <span @class([
+                            'font-bold',
+                            'text-green-600' => $check->status === \App\Installer\CheckStatus::Ok,
+                            'text-amber-600' => $check->status === \App\Installer\CheckStatus::Warn,
+                            'text-red-600' => $check->status === \App\Installer\CheckStatus::Fail,
+                            'text-zinc-500' => $check->status === \App\Installer\CheckStatus::Unknown,
+                        ])>{{ match ($check->status) {
+                            \App\Installer\CheckStatus::Ok => '✓',
+                            \App\Installer\CheckStatus::Warn => '!',
+                            \App\Installer\CheckStatus::Fail => '✗',
+                            \App\Installer\CheckStatus::Unknown => '?',
+                        } }}</span>
+                        <span>{{ $check->message }}</span>
+                    </p>
 
-            @if ($this->report->hasFailures())
-                <p class="mt-6 text-red-700 dark:text-red-300">
-                    Fix the problems above on the host, then start the installer again.
-                </p>
-            @endif
+                    @if ($check->fix !== '')
+                        <pre class="mt-2 overflow-x-auto rounded bg-zinc-100 p-3 text-sm dark:bg-zinc-900"><code>{{ $check->fix }}</code></pre>
+                    @endif
+                </li>
+            @endforeach
+        </ul>
+
+        @if ($this->report->hasFailures())
+            <p class="mt-6 text-red-700 dark:text-red-300">
+                Fix the problems above on the host, then start the installer again.
+            </p>
         @endif
     @endif
 

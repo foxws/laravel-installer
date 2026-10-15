@@ -5,18 +5,20 @@ namespace App\Installer;
 use JsonException;
 
 /**
- * The host checks from "lpod doctor --json". It runs on the host before the
- * installer starts, since the installer can't look at the host from inside
- * its container.
+ * The host checks, from "lpod doctor --json" when it ran on the host before
+ * the installer started, or else from what the installer can see through
+ * the Podman socket.
  */
 readonly class DoctorReport
 {
     /**
      * @param  list<DoctorCheck>  $checks
+     * @param  bool  $fromHost  Whether "lpod doctor" wrote it, so it covers everything
      */
     public function __construct(
         public string $lpodVersion,
         public array $checks,
+        public bool $fromHost = true,
     ) {}
 
     /**

@@ -2,4 +2,4 @@
 title: Requirements
 ---
 
-These are the results of `lpod doctor`, which checked this host before the installer started. Problems stop the installer, warnings don't.
+These are the checks for this host. Problems stop the installer. Warnings don't, and neither do checks marked with a question mark, which the installer can't see from inside its container.
