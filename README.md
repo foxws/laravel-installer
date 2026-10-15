@@ -10,7 +10,7 @@ You start the installer container once. It walks you through installing an app a
 ## How it works
 
 - **Host checks** run through the Podman socket: the Podman version (5.6 or newer, for Quadlet), cgroup v2 and subordinate IDs. What the installer can't see from inside its container, such as linger and the proxy's ports, it lists with how to check and fix it on the host. It stops at the requirements step while a check fails.
-- **Access** needs the one-time link that `php artisan installer:link` prints, like `http://127.0.0.1:8085/?token=…`. The link works once: the first browser that opens it gets in, and the token is removed from the address. Without it, every page, including Livewire's updates, returns 403. The installer listens on `127.0.0.1` by default; reach it on a server through `ssh -L 8085:127.0.0.1:8085`.
+- **Access** needs the one-time link that `php artisan installer:link` prints, like `http://127.0.0.1:8085/?token=…`. The link works once: the first browser that opens it gets in, and the token is removed from the address. Without it, every page, including Livewire's updates, returns 403. The installer listens on `127.0.0.1` by default; reach it on a server through `ssh -L 8085:127.0.0.1:8085`, or open it to your network over HTTPS (see below).
 - **Steps** come from the app. Each app ships an `installer/` folder with a `manifest.yml` and a Markdown file per step, and builds its own installer image on top of this one:
 
   ```dockerfile
@@ -88,7 +88,23 @@ podman run --rm --pull=newer -p 127.0.0.1:8085:8085 \
     ghcr.io/foxws/podman-installer:edge
 ```
 
-It prints the one-time link when it starts. Ctrl+C stops it, and `--rm` removes it. Inside the container it runs as root, which rootless Podman maps to your own user, the owner of the socket. `label=disable` lets it use the socket on SELinux hosts. Run `systemctl --user enable --now podman.socket` once if the socket doesn't exist.
+It prints the one-time link when it starts. Ctrl+C stops it, and `--rm` removes it.
+
+### On your network, over HTTPS
+
+To open it from another machine, publish it on the server's address and tell the installer that address with `INSTALLER_HOST`:
+
+```bash
+podman run --rm --pull=newer -p 192.168.1.100:8085:8085 \
+    -e INSTALLER_HOST=192.168.1.100 \
+    -v "$XDG_RUNTIME_DIR/podman/podman.sock:/run/podman/podman.sock" \
+    --security-opt label=disable \
+    ghcr.io/foxws/podman-installer:edge
+```
+
+With `INSTALLER_HOST`, the installer serves HTTPS and prints `https://192.168.1.100:8085/?token=…`. A hostname works too, such as `INSTALLER_HOST=server.lan`. The certificate comes from Caddy's internal CA, which your browser doesn't know, so it warns once; the connection is encrypted all the same. When you publish another port, such as `-p 192.168.1.100:9000:8085`, pass it as `INSTALLER_PUBLISHED_PORT=9000` so the link matches.
+
+Without `INSTALLER_HOST` it serves plain HTTP, which is only meant for `127.0.0.1` and SSH tunnels. Inside the container it runs as root, which rootless Podman maps to your own user, the owner of the socket. `label=disable` lets it use the socket on SELinux hosts. Run `systemctl --user enable --now podman.socket` once if the socket doesn't exist.
 
 ### With lpod
 
