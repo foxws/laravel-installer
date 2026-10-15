@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Middleware\EnsureInstallerToken;
 use App\Livewire\Installer;
 use Livewire\Features\SupportLockedProperties\CannotUpdateLockedPropertyException;
 use Livewire\Livewire;
@@ -11,6 +12,7 @@ function useDoctorReport(string $name): void
 
 it('shows the first step', function () {
     $this->withoutVite()
+        ->withSession([EnsureInstallerToken::SessionKey => true])
         ->get('/')
         ->assertOk()
         ->assertSee('Example installer')
