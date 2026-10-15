@@ -9,7 +9,7 @@ You start the installer container once. It walks you through installing an app a
 
 ## How it works
 
-- **Host checks** come from what the installer sees through the Podman socket: the Podman version, cgroup v2 and subordinate IDs. What it can't see from inside its container, such as linger, it lists with how to check and fix it on the host. When `lpod doctor --json` ran on the host first and its report is mounted at `/run/installer/doctor.json` (`INSTALLER_DOCTOR_REPORT`), the installer uses that full report instead. Either way, it stops at the requirements step while a check fails.
+- **Host checks** run through the Podman socket: the Podman version (5.6 or newer, for Quadlet), cgroup v2 and subordinate IDs. What the installer can't see from inside its container, such as linger and the proxy's ports, it lists with how to check and fix it on the host. It stops at the requirements step while a check fails.
 - **Access** needs the one-time link that `php artisan installer:link` prints, like `http://127.0.0.1:8085/?token=…`. The link works once: the first browser that opens it gets in, and the token is removed from the address. Without it, every page, including Livewire's updates, returns 403. The installer listens on `127.0.0.1` by default; reach it on a server through `ssh -L 8085:127.0.0.1:8085`.
 - **Steps** come from the app. Each app ships an `installer/` folder with a `manifest.yml` and a Markdown file per step, and builds its own installer image on top of this one:
 
@@ -36,7 +36,7 @@ steps:
 | ------ | ---------------------------------------------------------------------------- |
 | `id`   | A unique id for the step. It's also the title when the Markdown doesn't set one |
 | `file` | The Markdown file next to the manifest. Its front matter can set a `title`   |
-| `type` | `content` (default), `requirements`, which shows the `lpod doctor` checks, or `command` |
+| `type` | `content` (default), `requirements`, which shows the host checks, or `command` |
 
 Raw HTML in the Markdown is stripped. See [`installer/`](installer) for the example.
 
@@ -79,7 +79,7 @@ A `command` step asks for its inputs, then runs a command in the app's container
 
 `ghcr.io/foxws/podman-installer` runs the installer with FrankenPHP on port 8085. The `edge` tag follows `main`, and releases get `1`, `1.2` and `1.2.3` tags. The image keeps no data and needs no `.env`.
 
-Until there's an lpod command to start it, run it by hand:
+Start it with:
 
 ```bash
 podman run --rm --pull=newer -p 127.0.0.1:8085:8085 \
@@ -88,7 +88,11 @@ podman run --rm --pull=newer -p 127.0.0.1:8085:8085 \
     ghcr.io/foxws/podman-installer:edge
 ```
 
-It prints the one-time link when it starts. For the full host check, add `-v /tmp/doctor.json:/run/installer/doctor.json:ro` after `lpod doctor --json > /tmp/doctor.json`. Inside the container it runs as root, which rootless Podman maps to your own user, the owner of the socket. `label=disable` lets it use the socket on SELinux hosts. Run `systemctl --user enable --now podman.socket` once if the socket doesn't exist.
+It prints the one-time link when it starts. Ctrl+C stops it, and `--rm` removes it. Inside the container it runs as root, which rootless Podman maps to your own user, the owner of the socket. `label=disable` lets it use the socket on SELinux hosts. Run `systemctl --user enable --now podman.socket` once if the socket doesn't exist.
+
+### With lpod
+
+[`lpod`](https://github.com/foxws/lpod) can start it for you with `lpod installer IMAGE`. It also starts the Podman socket when it isn't running, and passes in the full host check of `lpod doctor --json` (mounted at `/run/installer/doctor.json`, `INSTALLER_DOCTOR_REPORT`), which covers linger and the ports too.
 
 Every image is built with provenance. Check where it came from with:
 
