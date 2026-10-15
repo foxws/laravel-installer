@@ -12,6 +12,12 @@ permissions:
   id-token: write
   attestations: write
 
+# One build per branch at a time, so the newest commit on main is always the
+# one that ends up as "edge". Pull requests cancel their older builds.
+concurrency:
+  group: image-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
 env:
   IMAGE: ghcr.io/${{ github.repository }}
 

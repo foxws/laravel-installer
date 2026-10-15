@@ -82,7 +82,7 @@ A `command` step asks for its inputs, then runs a command in the app's container
 Until there's an lpod command to start it, run it by hand:
 
 ```bash
-podman run --rm -p 127.0.0.1:8085:8085 \
+podman run --rm --pull=newer -p 127.0.0.1:8085:8085 \
     -v "$XDG_RUNTIME_DIR/podman/podman.sock:/run/podman/podman.sock" \
     --security-opt label=disable \
     ghcr.io/foxws/podman-installer:edge
