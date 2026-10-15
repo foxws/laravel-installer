@@ -60,6 +60,40 @@
         @endif
     @endif
 
+    @if ($this->step->type === \App\Installer\StepType::Command)
+        @if (in_array($this->step->id, $completed, true))
+            <p class="mt-6 font-medium text-green-700 dark:text-green-400">✓ Done.</p>
+        @else
+            <form wire:submit="runCommand" class="mt-6 space-y-4">
+                @foreach ($this->step->inputs as $input)
+                    <div wire:key="input-{{ $input->name }}">
+                        <label for="input-{{ $input->name }}" class="block text-sm font-medium">{{ $input->label }}</label>
+                        <input id="input-{{ $input->name }}" type="{{ $input->type->value }}" wire:model="values.{{ $input->name }}"
+                            autocomplete="{{ $input->secret ? 'new-password' : 'off' }}"
+                            class="mt-1 w-full rounded-lg border border-zinc-300 bg-white px-3 py-2 dark:border-zinc-700 dark:bg-zinc-900">
+                        @error("values.{$input->name}")
+                            <p class="mt-1 text-sm text-red-700 dark:text-red-300">{{ $message }}</p>
+                        @enderror
+                    </div>
+                @endforeach
+
+                <button type="submit" wire:loading.attr="disabled"
+                    class="rounded-lg bg-zinc-900 px-4 py-2 text-white disabled:opacity-40 dark:bg-white dark:text-zinc-900">
+                    <span wire:loading.remove wire:target="runCommand">Run</span>
+                    <span wire:loading wire:target="runCommand">Running…</span>
+                </button>
+            </form>
+        @endif
+
+        @error('command')
+            <p class="mt-4 text-red-700 dark:text-red-300">{{ $message }}</p>
+        @enderror
+
+        @if ($output)
+            <pre class="mt-4 max-h-80 overflow-auto rounded bg-zinc-100 p-3 text-sm dark:bg-zinc-900"><code>{{ $output }}</code></pre>
+        @endif
+    @endif
+
     <nav class="mt-10 flex justify-between">
         <button type="button" wire:click="previous" @disabled($current === 0)
             class="rounded-lg px-4 py-2 text-zinc-700 disabled:opacity-40 dark:text-zinc-300">

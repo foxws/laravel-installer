@@ -27,4 +27,19 @@ return [
 
     'doctor_report' => env('INSTALLER_DOCTOR_REPORT', '/run/installer/doctor.json'),
 
+    /*
+    |--------------------------------------------------------------------------
+    | Podman
+    |--------------------------------------------------------------------------
+    |
+    | The Podman binary that runs the steps' commands in the app's containers,
+    | through the Podman socket mounted into the installer, and how long one
+    | command may take, in seconds.
+    |
+    */
+
+    'podman' => env('INSTALLER_PODMAN', 'podman'),
+
+    'command_timeout' => (int) env('INSTALLER_COMMAND_TIMEOUT', 300),
+
 ];

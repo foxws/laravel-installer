@@ -14,4 +14,10 @@ enum StepType: string
      * once none of them fail.
      */
     case Requirements = 'requirements';
+
+    /**
+     * Asks for its inputs, then runs a command in the app's container, such as
+     * creating the admin account or running a seeder.
+     */
+    case Command = 'command';
 }
