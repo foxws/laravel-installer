@@ -1,0 +1,14 @@
+# The installer for your app. Copy this folder into your app as "installer/"
+# and build your installer image from ghcr.io/foxws/podman-installer.
+name: Example
+
+steps:
+  - id: welcome
+    file: welcome.md
+
+  - id: requirements
+    type: requirements
+    file: requirements.md
+
+  - id: finish
+    file: finish.md
