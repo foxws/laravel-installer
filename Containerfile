@@ -55,12 +55,12 @@ RUN composer dump-autoload --optimize --no-dev \
     && php artisan package:discover
 
 COPY --chmod=755 runtime/entrypoint.sh /usr/local/bin/installer
+COPY runtime/Caddyfile /etc/installer/Caddyfile
 
 # The installer keeps no data, so it runs without a ".env": everything it needs
 # comes from here, or from "podman run --env".
 ENV APP_ENV=production
 ENV APP_DEBUG=false
-ENV APP_URL=http://127.0.0.1:8085
 ENV LOG_CHANNEL=stderr
 ENV SESSION_DRIVER=file
 ENV CACHE_STORE=file

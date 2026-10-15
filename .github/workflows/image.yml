@@ -83,6 +83,26 @@ jobs:
           LINK="$(docker logs installer 2>&1 | grep -o 'http://[^ ]*token=[A-Za-z0-9]*')"
           curl -fsL -c jar -b jar "$LINK" | grep -q 'Example installer'
 
+      # With a host, it serves HTTPS from Caddy's internal CA, also for an IP
+      # address, for which clients send no server name...
+      - name: Smoke test HTTPS
+        if: github.event_name == 'pull_request'
+        run: |
+          docker run -d --name installer-https -p 127.0.0.1:8443:8085 \
+              -e INSTALLER_HOST=127.0.0.1 -e INSTALLER_PUBLISHED_PORT=8443 \
+              "${{ fromJSON(steps.meta.outputs.json).tags[0] }}"
+
+          for i in $(seq 1 30); do
+            curl -fsk https://127.0.0.1:8443/up >/dev/null && break
+            sleep 1
+          done
+
+          docker logs installer-https
+          test "$(curl -sk -o /dev/null -w '%{http_code}' https://127.0.0.1:8443/)" = 403
+
+          LINK="$(docker logs installer-https 2>&1 | grep -o 'https://127.0.0.1:8443/?token=[A-Za-z0-9]*')"
+          curl -fskL -c jar-https -b jar-https "$LINK" | grep -q 'Example installer'
+
       # Lets users check that an image really comes from this repository:
       # gh attestation verify oci://ghcr.io/foxws/podman-installer:1 --owner foxws
       - uses: actions/attest-build-provenance@v3
