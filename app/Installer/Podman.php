@@ -12,6 +12,25 @@ use Illuminate\Support\Facades\Process;
 class Podman
 {
     /**
+     * What "podman info" says about the host, or null when the socket can't
+     * be reached.
+     *
+     * @return array<string, mixed>|null
+     */
+    public function info(): ?array
+    {
+        $result = Process::timeout(30)->run([config('installer.podman'), 'info', '--format', 'json']);
+
+        if (! $result->successful()) {
+            return null;
+        }
+
+        $info = json_decode($result->output(), true);
+
+        return is_array($info) ? $info : null;
+    }
+
+    /**
      * Environment values are handed to "podman exec" by name only ("-e NAME"),
      * so Podman reads them from its own environment and they never show up
      * in its arguments.

@@ -2,6 +2,8 @@
 
 use App\Http\Middleware\EnsureInstallerToken;
 use App\Livewire\Installer;
+use Illuminate\Process\PendingProcess;
+use Illuminate\Support\Facades\Process;
 use Livewire\Features\SupportLockedProperties\CannotUpdateLockedPropertyException;
 use Livewire\Livewire;
 
@@ -47,12 +49,31 @@ it('stops at the requirements while the host has problems', function () {
         ->assertSet('current', 1);
 });
 
-it('stops at the requirements without a host report', function () {
+it('checks the host through the podman socket without a host report', function () {
     useDoctorReport('missing');
+
+    Process::fake([
+        '*' => Process::result(output: file_get_contents(dirname(__DIR__).'/fixtures/podman/rootless.json')),
+    ]);
 
     Livewire::test(Installer::class)
         ->call('next')
-        ->assertSee('The host report is missing')
+        ->assertSee('Podman 5.6.2 with Quadlet')
+        ->assertSee("can't see whether linger is on")
+        ->call('next')
+        ->assertSet('current', 2);
+
+    Process::assertRan(fn (PendingProcess $process) => $process->command === ['podman', 'info', '--format', 'json']);
+});
+
+it('stops at the requirements when the podman socket cannot be reached', function () {
+    useDoctorReport('missing');
+
+    Process::fake(['*' => Process::result(exitCode: 125)]);
+
+    Livewire::test(Installer::class)
+        ->call('next')
+        ->assertSee("can't reach Podman through its socket")
         ->call('next')
         ->assertSet('current', 1);
 });
