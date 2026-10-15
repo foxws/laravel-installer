@@ -62,5 +62,21 @@ it('rejects invalid manifests', function (array $files, string $reason) {
     'step without file' => [['manifest.yml' => "name: App\nsteps:\n  - { id: first }"], 'step 0 needs an "id" and a "file"'],
     'unknown type' => [['manifest.yml' => "name: App\nsteps:\n  - { id: first, type: magic, file: a.md }", 'a.md' => ''], 'unknown type'],
     'missing markdown' => [['manifest.yml' => "name: App\nsteps:\n  - { id: first, file: a.md }"], "which doesn't exist"],
+    'command without run' => [['manifest.yml' => "name: App\nsteps:\n  - { id: first, type: command, file: a.md }", 'a.md' => ''], 'needs a "run"'],
+    'command as a string' => [['manifest.yml' => "name: App\nsteps:\n  - { id: first, type: command, file: a.md, run: { container: app, command: 'php artisan x' } }", 'a.md' => ''], 'as a list of arguments'],
+    'secret in arguments' => [['manifest.yml' => "name: App\nsteps:\n  - { id: first, type: command, file: a.md, inputs: [{ name: password, type: password }], run: { container: app, command: [x, '--password={password}'] } }", 'a.md' => ''], 'can only be passed through "stdin" or "env"'],
+    'lower case env' => [['manifest.yml' => "name: App\nsteps:\n  - { id: first, type: command, file: a.md, run: { container: app, command: [x], env: { token: y } } }", 'a.md' => ''], 'must map upper case names'],
     'duplicate ids' => [['manifest.yml' => "name: App\nsteps:\n  - { id: first, file: a.md }\n  - { id: first, file: a.md }", 'a.md' => ''], 'first are used more than once'],
 ]);
+
+it('reads the inputs and command of a command step', function () {
+    $step = Manifest::fromPath(dirname(__DIR__).'/fixtures/installer-command')->steps[0];
+
+    expect($step->type)->toBe(StepType::Command)
+        ->and($step->title)->toBe('Admin account')
+        ->and(array_map(fn ($input) => $input->name, $step->inputs))->toBe(['name', 'email', 'password'])
+        ->and(array_map(fn ($input) => $input->name, $step->secretInputs()))->toBe(['password'])
+        ->and($step->run->container)->toBe('systemd-demo')
+        ->and($step->run->stdin)->toBe('{password}')
+        ->and($step->run->skipIf)->toBe(['php', 'artisan', 'users:exists', '--super-admin']);
+});
