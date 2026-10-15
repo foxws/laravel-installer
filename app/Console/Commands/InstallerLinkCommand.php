@@ -19,7 +19,7 @@ class InstallerLinkCommand extends Command
 
     public function handle(InstallerToken $token): int
     {
-        $url = url('/').'?token='.$token->issue();
+        $url = url('/').'/?token='.$token->issue();
 
         $this->components->info('Open the installer in your browser. The link works once.');
         $this->line("  {$url}");

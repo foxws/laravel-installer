@@ -39,7 +39,7 @@ it('rejects a wrong token', function () {
 
 it('prints a link that opens the installer', function () {
     $this->artisan('installer:link')
-        ->expectsOutputToContain(url('/').'?token=')
+        ->expectsOutputToContain(url('/').'/?token=')
         ->assertSuccessful();
 });
 
