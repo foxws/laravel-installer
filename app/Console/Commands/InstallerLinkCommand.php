@@ -4,6 +4,7 @@ namespace App\Console\Commands;
 
 use App\Installer\InstallerToken;
 use Illuminate\Console\Command;
+use Illuminate\Support\Uri;
 
 class InstallerLinkCommand extends Command
 {
@@ -19,7 +20,9 @@ class InstallerLinkCommand extends Command
 
     public function handle(InstallerToken $token): int
     {
-        $url = url('/').'?token='.$token->issue();
+        $url = Uri::route('installer')
+            ->withPath('/')
+            ->withQuery(['token' => $token->issue()]);
 
         $this->components->info('Open the installer in your browser. The link works once.');
         $this->line("  {$url}");

@@ -1,0 +1,87 @@
+name: Image
+
+on:
+  push:
+    branches: [main]
+    tags: ['v*']
+  pull_request:
+
+permissions:
+  contents: read
+  packages: write
+  id-token: write
+  attestations: write
+
+env:
+  IMAGE: ghcr.io/${{ github.repository }}
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: docker/setup-qemu-action@v3
+
+      - uses: docker/setup-buildx-action@v3
+
+      - uses: docker/metadata-action@v5
+        id: meta
+        with:
+          images: ${{ env.IMAGE }}
+          tags: |
+            type=edge,branch=main
+            type=semver,pattern={{version}}
+            type=semver,pattern={{major}}.{{minor}}
+            type=semver,pattern={{major}}
+            type=ref,event=pr
+
+      - uses: docker/login-action@v3
+        if: github.event_name != 'pull_request'
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - uses: docker/build-push-action@v6
+        id: build
+        with:
+          context: .
+          file: Containerfile
+          platforms: ${{ github.event_name == 'pull_request' && 'linux/amd64' || 'linux/amd64,linux/arm64' }}
+          push: ${{ github.event_name != 'pull_request' }}
+          load: ${{ github.event_name == 'pull_request' }}
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          provenance: ${{ github.event_name != 'pull_request' }}
+          sbom: ${{ github.event_name != 'pull_request' }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      # Starts the image and checks that it serves the installer only with the
+      # link it printed...
+      - name: Smoke test
+        if: github.event_name == 'pull_request'
+        run: |
+          docker run -d --name installer -p 127.0.0.1:8085:8085 "${{ fromJSON(steps.meta.outputs.json).tags[0] }}"
+
+          for i in $(seq 1 30); do
+            curl -fs http://127.0.0.1:8085/up >/dev/null && break
+            sleep 1
+          done
+
+          docker logs installer
+          test "$(curl -s -o /dev/null -w '%{http_code}' http://127.0.0.1:8085/)" = 403
+
+          LINK="$(docker logs installer 2>&1 | grep -o 'http://[^ ]*token=[A-Za-z0-9]*')"
+          curl -fsL -c jar -b jar "$LINK" | grep -q 'Example installer'
+
+      # Lets users check that an image really comes from this repository:
+      # gh attestation verify oci://ghcr.io/foxws/podman-installer:1 --owner foxws
+      - uses: actions/attest-build-provenance@v3
+        if: github.event_name != 'pull_request'
+        with:
+          subject-name: ${{ env.IMAGE }}
+          subject-digest: ${{ steps.build.outputs.digest }}
+          push-to-registry: true

@@ -75,6 +75,30 @@ A `command` step asks for its inputs, then runs a command in the app's container
 - `rules` are Laravel validation rules, `required` by default. `type` is `text` (default), `email` or `password`.
 - The installer only continues once the command succeeded.
 
+## The image
+
+`ghcr.io/foxws/podman-installer` runs the installer with FrankenPHP on port 8085. The `edge` tag follows `main`, and releases get `1`, `1.2` and `1.2.3` tags. The image keeps no data and needs no `.env`.
+
+Until there's an lpod command to start it, run it by hand:
+
+```bash
+lpod doctor --json > /tmp/doctor.json
+
+podman run --rm -p 127.0.0.1:8085:8085 \
+    -v "$XDG_RUNTIME_DIR/podman/podman.sock:/run/podman/podman.sock" \
+    -v /tmp/doctor.json:/run/installer/doctor.json:ro \
+    --security-opt label=disable \
+    ghcr.io/foxws/podman-installer:edge
+```
+
+It prints the one-time link when it starts. Inside the container it runs as root, which rootless Podman maps to your own user, the owner of the socket. `label=disable` lets it use the socket on SELinux hosts. Run `systemctl --user enable --now podman.socket` once if the socket doesn't exist.
+
+Every image is built with provenance. Check where it came from with:
+
+```bash
+gh attestation verify oci://ghcr.io/foxws/podman-installer:edge --owner foxws
+```
+
 ## Development
 
 ```bash
