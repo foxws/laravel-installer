@@ -63,9 +63,37 @@ it('copies plain systemd units to the user folder', function () {
 it('returns the services to start and follow', function () {
     $units = $this->installer->install([$this->rendered]);
 
-    expect($units->services)->toBe(['acme-build.service', 'acme.service', 'acme-data-volume.service'])
-        ->and($units->start)->toBe(['acme.service'])
+    expect($units->start)->toBe(['acme.service'])
+        ->and($units->enable)->toBe(['acme-schedule.timer'])
+        ->and($units->services)->toBe(['acme.service', 'acme-schedule.timer']);
+});
+
+it('leaves containers a timer starts to their timer', function () {
+    File::append("{$this->root}/rendered/app.quadlets", "\n---\n# FileName=acme-schedule\n[Container]\nImage=acme.build\n");
+
+    $units = $this->installer->install([$this->rendered]);
+
+    expect($units->start)->toBe(['acme.service'])
         ->and($units->enable)->toBe(['acme-schedule.timer']);
+});
+
+it('starts the on-demand proxy instead of the containers', function () {
+    File::put("{$this->root}/rendered/acme-ondemand.socket", "[Socket]\nListenStream=8000\n");
+    File::put("{$this->root}/rendered/acme-ondemand.service", "[Service]\nExecStart=/usr/lib/systemd/systemd-socket-proxyd 127.0.0.1:18000\n");
+
+    $rendered = new PodmanRenderedPreset(
+        preset: 'production',
+        path: "{$this->root}/rendered",
+        quadlets: ["{$this->root}/rendered/app.quadlets"],
+        systemdUnits: ["{$this->root}/rendered/acme-ondemand.socket", "{$this->root}/rendered/acme-ondemand.service", "{$this->root}/rendered/acme-schedule.timer"],
+        runtimesPath: null,
+    );
+
+    $units = $this->installer->install([$rendered]);
+
+    expect($units->start)->toBe(['acme-ondemand.service'])
+        ->and($units->enable)->toBe(['acme-ondemand.socket', 'acme-schedule.timer'])
+        ->and(File::exists("{$this->root}/units/acme-ondemand.service"))->toBeTrue();
 });
 
 it('refuses rendered units that are not valid', function (string $contents) {
