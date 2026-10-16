@@ -127,7 +127,7 @@ Start it with:
 podman run --rm --pull=newer -p 127.0.0.1:8085:8085 \
     -v "$XDG_RUNTIME_DIR/podman/podman.sock:/run/podman/podman.sock" \
     --security-opt label=disable \
-    ghcr.io/foxws/laravel-installer:edge
+    ghcr.io/foxws/laravel-installer:1
 ```
 
 It prints the one-time link when it starts. Ctrl+C stops it, and `--rm` removes it.
@@ -141,7 +141,7 @@ podman run --rm --pull=newer -p 192.168.1.100:8085:8085 \
     -e INSTALLER_HOST=192.168.1.100 \
     -v "$XDG_RUNTIME_DIR/podman/podman.sock:/run/podman/podman.sock" \
     --security-opt label=disable \
-    ghcr.io/foxws/laravel-installer:edge
+    ghcr.io/foxws/laravel-installer:1
 ```
 
 With `INSTALLER_HOST`, the installer serves HTTPS and prints `https://192.168.1.100:8085/?token=…`. A hostname works too, such as `INSTALLER_HOST=server.lan`. The certificate comes from Caddy's internal CA, which your browser doesn't know, so it warns once; the connection is encrypted all the same. When you publish another port, such as `-p 192.168.1.100:9000:8085`, pass it as `INSTALLER_PUBLISHED_PORT=9000` so the link matches.
@@ -163,7 +163,7 @@ podman run --rm --pull=newer -p 127.0.0.1:8085:8085 \
     -v "$XDG_RUNTIME_DIR/bus:/run/installer/bus" \
     -e DBUS_SESSION_BUS_ADDRESS=unix:path=/run/installer/bus \
     --security-opt label=disable \
-    ghcr.io/foxws/laravel-installer:edge
+    ghcr.io/foxws/laravel-installer:1
 ```
 
 The workspace is mounted at `/workspace`, and the app's `.env` is read from `/workspace/.env`. `PODMAN_WORKING_PATH` is the workspace's path on the host, which is written into the rendered units. To read another `.env`, mount it and point `INSTALLER_ENV_FILE` to it, either as an absolute path or relative to the workspace (such as `.env.production`). For another mount point, set `INSTALLER_WORKSPACE`. `lpod installer IMAGE --workspace PATH` sets all of this up for you.
@@ -175,7 +175,7 @@ The workspace is mounted at `/workspace`, and the app's `.env` is read from `/wo
 Every image is built with provenance. Check where it came from with:
 
 ```bash
-gh attestation verify oci://ghcr.io/foxws/laravel-installer:edge --owner foxws
+gh attestation verify oci://ghcr.io/foxws/laravel-installer:1 --owner foxws
 ```
 
 ## Development
