@@ -10,6 +10,15 @@ steps:
     type: requirements
     file: requirements.md
 
+  # Creates the Podman secrets the services use. Needs the app's folder
+  # mounted at /workspace, like the services step.
+  # - id: secrets
+  #   type: secrets
+  #   file: secrets.md
+  #   presets: [production]
+  #   values:
+  #     POSTGRES_PASSWORD: DB_PASSWORD
+
   # Renders the app's presets into its folder, installs and starts them. Needs
   # "lpod installer IMAGE --workspace PATH".
   # - id: services

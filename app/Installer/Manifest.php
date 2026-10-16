@@ -94,7 +94,9 @@ readonly class Manifest
             html: $rendered->getContent(),
             inputs: $inputs,
             run: $type === StepType::Command ? static::run($file, $step, $inputs) : null,
-            presets: $type === StepType::Services ? static::presets($file, $step) : [],
+            presets: in_array($type, [StepType::Services, StepType::Secrets], true) ? static::presets($file, $step) : [],
+            secretValues: $type === StepType::Secrets ? static::stringMap($file, $step, 'values') : [],
+            secretFiles: $type === StepType::Secrets ? static::stringMap($file, $step, 'files') : [],
         );
     }
 
@@ -180,6 +182,21 @@ readonly class Manifest
         }
 
         return $presets;
+    }
+
+    /**
+     * @param  array<string, mixed>  $step
+     * @return array<string, string>
+     */
+    protected static function stringMap(string $file, array $step, string $key): array
+    {
+        $map = $step[$key] ?? [];
+
+        if (! is_array($map) || array_filter($map, fn (mixed $value, mixed $name): bool => ! is_string($name) || ! is_string($value), ARRAY_FILTER_USE_BOTH) !== []) {
+            throw InvalidManifestException::invalid($file, "the \"{$key}\" of step \"{$step['id']}\" must map secret targets to names.");
+        }
+
+        return $map;
     }
 
     protected static function isArgumentList(mixed $value, bool $allowEmpty = false): bool

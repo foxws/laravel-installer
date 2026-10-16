@@ -99,3 +99,22 @@ it('refuses presets that are not a list of names', function () {
         'services.md' => '# Services',
     ]));
 })->throws(InvalidManifestException::class, 'must be a list of preset names');
+
+it('reads where a secrets step takes its values from', function () {
+    $manifest = Manifest::fromPath(installerFolder([
+        'manifest.yml' => "name: Demo\nsteps:\n  - id: secrets\n    type: secrets\n    file: secrets.md\n    presets: [production]\n    values: { POSTGRES_PASSWORD: DB_PASSWORD }\n    files: { /app/.env: .env.production }\n",
+        'secrets.md' => '# Secrets',
+    ]));
+
+    expect($manifest->steps[0]->type)->toBe(StepType::Secrets)
+        ->and($manifest->steps[0]->presets)->toBe(['production'])
+        ->and($manifest->steps[0]->secretValues)->toBe(['POSTGRES_PASSWORD' => 'DB_PASSWORD'])
+        ->and($manifest->steps[0]->secretFiles)->toBe(['/app/.env' => '.env.production']);
+});
+
+it('refuses secret sources that are not a map of names', function () {
+    Manifest::fromPath(installerFolder([
+        'manifest.yml' => "name: Demo\nsteps:\n  - { id: secrets, type: secrets, file: secrets.md, values: [DB_PASSWORD] }\n",
+        'secrets.md' => '# Secrets',
+    ]));
+})->throws(InvalidManifestException::class, 'must map secret targets to names');

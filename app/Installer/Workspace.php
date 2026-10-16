@@ -43,6 +43,29 @@ class Workspace
     }
 
     /**
+     * One value of the app's ".env" file, such as a database password for a
+     * secret, which is passed on to Podman and never kept.
+     */
+    public function value(string $key): ?string
+    {
+        if ($this->envFile === null || ! is_file($this->envFile)) {
+            return null;
+        }
+
+        $value = Dotenv::parse((string) file_get_contents($this->envFile))[$key] ?? null;
+
+        return $value !== null && $value !== '' ? $value : null;
+    }
+
+    /**
+     * The path of a file in the workspace, or the given absolute path.
+     */
+    public function file(string $path): string
+    {
+        return Str::startsWith($path, '/') ? $path : "{$this->path}/{$path}";
+    }
+
+    /**
      * The values read from the app's ".env" file: only "APP_NAME", "APP_URL",
      * "APP_ENV" and the "PODMAN_*" ones, so secrets such as "APP_KEY" are
      * never loaded.

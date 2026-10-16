@@ -6,6 +6,7 @@ namespace App\Livewire;
 
 use App\Livewire\Concerns\InteractsWithCommands;
 use App\Livewire\Concerns\InteractsWithRequirements;
+use App\Livewire\Concerns\InteractsWithSecrets;
 use App\Livewire\Concerns\InteractsWithServices;
 use App\Livewire\Concerns\InteractsWithSteps;
 use Illuminate\Contracts\View\View;
@@ -15,6 +16,7 @@ class Installer extends Component
 {
     use InteractsWithCommands;
     use InteractsWithRequirements;
+    use InteractsWithSecrets;
     use InteractsWithServices;
     use InteractsWithSteps;
 
