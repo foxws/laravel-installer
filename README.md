@@ -1,8 +1,10 @@
-# podman-installer
+# Laravel Installer
 
-A one-time installer for rootless Podman apps: run it, set up, remove it.
+A one-time installer for Laravel apps in containers: run it, set up, remove it.
 
-You start the installer container once. It walks you through installing an app as rootless Podman Quadlets in your browser, and then it's gone. From then on, systemd runs the app and [`lpod`](https://github.com/foxws/lpod) manages it. The installer doesn't keep running as a platform (like Coolify or Portainer), and it doesn't replace Cockpit.
+You start the installer container once. It walks you through installing an app in your browser, and then it's gone. The installer doesn't keep running as a platform (like Coolify or Portainer), and it doesn't replace Cockpit.
+
+It supports rootless Podman with Quadlets today: from then on, systemd runs the app and [`lpod`](https://github.com/foxws/lpod) manages it. Docker and Docker Compose are planned.
 
 > [!WARNING]
 > Early work in progress. Only the wizard, the manifest, the requirements and command steps, and the one-time link exist so far.
@@ -14,7 +16,7 @@ You start the installer container once. It walks you through installing an app a
 - **Steps** come from the app. Each app ships an `installer/` folder with a `manifest.yml` and a Markdown file per step, and builds its own installer image on top of this one:
 
   ```dockerfile
-  FROM ghcr.io/foxws/podman-installer:1
+  FROM ghcr.io/foxws/laravel-installer:1
   COPY installer/ /app/installer/
   ```
 
@@ -77,7 +79,7 @@ A `command` step asks for its inputs, then runs a command in the app's container
 
 ## The image
 
-`ghcr.io/foxws/podman-installer` runs the installer with FrankenPHP on port 8085. The `edge` tag follows `main`, and releases get `1`, `1.2` and `1.2.3` tags. The image keeps no data and needs no `.env`.
+`ghcr.io/foxws/laravel-installer` runs the installer with FrankenPHP on port 8085. The `edge` tag follows `main`, and releases get `1`, `1.2` and `1.2.3` tags. The image keeps no data and needs no `.env`.
 
 Start it with:
 
@@ -85,7 +87,7 @@ Start it with:
 podman run --rm --pull=newer -p 127.0.0.1:8085:8085 \
     -v "$XDG_RUNTIME_DIR/podman/podman.sock:/run/podman/podman.sock" \
     --security-opt label=disable \
-    ghcr.io/foxws/podman-installer:edge
+    ghcr.io/foxws/laravel-installer:edge
 ```
 
 It prints the one-time link when it starts. Ctrl+C stops it, and `--rm` removes it.
@@ -99,7 +101,7 @@ podman run --rm --pull=newer -p 192.168.1.100:8085:8085 \
     -e INSTALLER_HOST=192.168.1.100 \
     -v "$XDG_RUNTIME_DIR/podman/podman.sock:/run/podman/podman.sock" \
     --security-opt label=disable \
-    ghcr.io/foxws/podman-installer:edge
+    ghcr.io/foxws/laravel-installer:edge
 ```
 
 With `INSTALLER_HOST`, the installer serves HTTPS and prints `https://192.168.1.100:8085/?token=…`. A hostname works too, such as `INSTALLER_HOST=server.lan`. The certificate comes from Caddy's internal CA, which your browser doesn't know, so it warns once; the connection is encrypted all the same. When you publish another port, such as `-p 192.168.1.100:9000:8085`, pass it as `INSTALLER_PUBLISHED_PORT=9000` so the link matches.
@@ -113,7 +115,7 @@ Without `INSTALLER_HOST` it serves plain HTTP, which is only meant for `127.0.0.
 Every image is built with provenance. Check where it came from with:
 
 ```bash
-gh attestation verify oci://ghcr.io/foxws/podman-installer:edge --owner foxws
+gh attestation verify oci://ghcr.io/foxws/laravel-installer:edge --owner foxws
 ```
 
 ## Development

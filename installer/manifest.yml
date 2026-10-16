@@ -1,5 +1,5 @@
 # The installer for your app. Copy this folder into your app as "installer/"
-# and build your installer image from ghcr.io/foxws/podman-installer.
+# and build your installer image from ghcr.io/foxws/laravel-installer.
 name: Example
 
 steps:

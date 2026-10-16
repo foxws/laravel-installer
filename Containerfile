@@ -1,7 +1,7 @@
 # The installer image. Apps build their own installer on top of it, with their
 # "installer/" folder copied over the example one:
 #
-#   FROM ghcr.io/foxws/podman-installer:1
+#   FROM ghcr.io/foxws/laravel-installer:1
 #   COPY installer/ /app/installer/
 
 ARG FRANKENPHP_VERSION=1-php8.5
