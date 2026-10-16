@@ -7,7 +7,7 @@
     "license": "MIT",
     "require": {
         "php": "^8.3",
-        "foxws/laravel-podman": "dev-quadlet-secrets as 5.6.0",
+        "foxws/laravel-podman": "dev-main as 5.6.0",
         "laravel/framework": "^13.17",
         "laravel/tinker": "^3.0",
         "league/commonmark": "^2.10",
