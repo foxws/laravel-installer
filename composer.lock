@@ -517,12 +517,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/foxws/laravel-podman.git",
-                "reference": "fd324c8bede093e277cfc850264caa9774554d96"
+                "reference": "9d2e2678f116710cd7ede96fad24c9c479fe4ec3"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/foxws/laravel-podman/zipball/fd324c8bede093e277cfc850264caa9774554d96",
-                "reference": "fd324c8bede093e277cfc850264caa9774554d96",
+                "url": "https://api.github.com/repos/foxws/laravel-podman/zipball/9d2e2678f116710cd7ede96fad24c9c479fe4ec3",
+                "reference": "9d2e2678f116710cd7ede96fad24c9c479fe4ec3",
                 "shasum": ""
             },
             "require": {
@@ -597,7 +597,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2026-10-16T07:54:52+00:00"
+            "time": "2026-10-16T08:07:07+00:00"
         },
         {
             "name": "fruitcake/php-cors",
