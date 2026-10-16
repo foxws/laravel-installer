@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 use App\Installer\QuadletInstaller;
 use App\Installer\ServicesException;
 use Foxws\Podman\Support\PodmanRenderedPreset;

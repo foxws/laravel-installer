@@ -1,9 +1,12 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Installer;
 
 use Foxws\Podman\Exceptions\QuadletRenderException;
 use Foxws\Podman\Support\PodmanRenderedPreset;
+use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\File;
 
 /**
@@ -21,7 +24,7 @@ class QuadletInstaller
 
     public static function fromConfig(): self
     {
-        return new self(config('installer.quadlet_path'), config('installer.unit_path'));
+        return new self(Config::string('installer.quadlet_path'), Config::string('installer.unit_path'));
     }
 
     /**

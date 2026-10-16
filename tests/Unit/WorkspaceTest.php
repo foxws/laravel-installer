@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 use App\Installer\ServicesException;
 use App\Installer\Workspace;
 use Illuminate\Support\Facades\File;

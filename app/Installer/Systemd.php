@@ -1,8 +1,11 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Installer;
 
 use Illuminate\Contracts\Process\ProcessResult;
+use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Process;
 
 /**
@@ -82,7 +85,7 @@ class Systemd
     protected function call(string $action, string $path, string $method, array $arguments = []): ProcessResult
     {
         $result = Process::timeout(30)->run([
-            config('installer.dbus_send'),
+            Config::string('installer.dbus_send'),
             '--session',
             '--print-reply',
             '--dest='.self::DESTINATION,
