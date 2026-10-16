@@ -104,7 +104,7 @@ jobs:
           curl -fskL -c jar-https -b jar-https "$LINK" | grep -q 'Example installer'
 
       # Lets users check that an image really comes from this repository:
-      # gh attestation verify oci://ghcr.io/foxws/podman-installer:1 --owner foxws
+      # gh attestation verify oci://ghcr.io/foxws/laravel-installer:1 --owner foxws
       - uses: actions/attest-build-provenance@v3
         if: github.event_name != 'pull_request'
         with:
