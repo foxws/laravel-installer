@@ -1,0 +1,12 @@
+name: Demo
+
+steps:
+  - id: migrate
+    type: command
+    file: migrate.md
+    run:
+      container: systemd-demo
+      command: [php, artisan, migrate, --force]
+
+  - id: finish
+    file: finish.md

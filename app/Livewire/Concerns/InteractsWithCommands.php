@@ -46,10 +46,14 @@ trait InteractsWithCommands
             return;
         }
 
-        $this->validate(
-            collect($step->inputs)->mapWithKeys(fn (Input $input): array => ["values.{$input->name}" => $input->rules])->all(),
-            attributes: collect($step->inputs)->mapWithKeys(fn (Input $input): array => ["values.{$input->name}" => $input->label])->all(),
-        );
+        // Livewire falls back to the component's own rules when given none,
+        // so a step without inputs has nothing to validate...
+        if ($step->inputs !== []) {
+            $this->validate(
+                collect($step->inputs)->mapWithKeys(fn (Input $input): array => ["values.{$input->name}" => $input->rules])->all(),
+                attributes: collect($step->inputs)->mapWithKeys(fn (Input $input): array => ["values.{$input->name}" => $input->label])->all(),
+            );
+        }
 
         $values = collect($step->inputs)->mapWithKeys(fn (Input $input): array => [$input->name => (string) ($this->values[$input->name] ?? '')])->all();
         $run = $step->run;
