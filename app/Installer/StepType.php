@@ -12,8 +12,8 @@ enum StepType: string
     case Content = 'content';
 
     /**
-     * The host checks from "lpod doctor --json". The installer only continues
-     * once none of them fail.
+     * The host checks, through the Podman socket. The installer only
+     * continues once none of them fail.
      */
     case Requirements = 'requirements';
 

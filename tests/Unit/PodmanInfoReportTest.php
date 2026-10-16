@@ -24,8 +24,7 @@ function statuses(array $checks): array
 it('checks a rootless host through the socket', function () {
     $report = PodmanInfoReport::fromInfo(podmanInfo());
 
-    expect($report->fromHost)->toBeFalse()
-        ->and($report->hasFailures())->toBeFalse()
+    expect($report->hasFailures())->toBeFalse()
         ->and(statuses($report->checks))->toBe([
             'podman' => CheckStatus::Ok,
             'cgroups' => CheckStatus::Ok,

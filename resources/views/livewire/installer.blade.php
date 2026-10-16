@@ -22,13 +22,6 @@
     </div>
 
     @if ($this->step->type === \App\Installer\StepType::Requirements)
-        @unless ($this->report->fromHost)
-            <p class="mt-6 rounded-lg border border-zinc-200 p-4 text-sm dark:border-zinc-800">
-                These checks come from what the installer can see through the Podman socket.
-                For a full check, run <code>lpod doctor</code> on the host, or start the installer with <code>lpod installer</code>.
-            </p>
-        @endunless
-
         <ul class="mt-6 space-y-3">
             @foreach ($this->report->checks as $check)
                 <li wire:key="check-{{ $check->id }}" class="rounded-lg border border-zinc-200 p-4 dark:border-zinc-800">

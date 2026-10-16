@@ -147,7 +147,7 @@ The workspace is mounted at `/workspace`, and the app's `.env` is read from `/wo
 
 ### With lpod
 
-[`lpod`](https://github.com/foxws/lpod) can start it for you with `lpod installer IMAGE`. It also starts the Podman socket when it isn't running, and passes in the full host check of `lpod doctor --json` (mounted at `/run/installer/doctor.json`, `INSTALLER_DOCTOR_REPORT`), which covers linger and the ports too.
+[`lpod`](https://github.com/foxws/lpod) can start it for you with `lpod installer IMAGE`. It also starts the Podman socket when it isn't running.
 
 Every image is built with provenance. Check where it came from with:
 

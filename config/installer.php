@@ -18,19 +18,6 @@ return [
 
     /*
     |--------------------------------------------------------------------------
-    | Doctor Report
-    |--------------------------------------------------------------------------
-    |
-    | The output of "lpod doctor --json", written on the host before the
-    | installer starts and mounted into the container. The installer can't
-    | check the host from inside its container, so it reads this instead.
-    |
-    */
-
-    'doctor_report' => env('INSTALLER_DOCTOR_REPORT', '/run/installer/doctor.json'),
-
-    /*
-    |--------------------------------------------------------------------------
     | Podman
     |--------------------------------------------------------------------------
     |

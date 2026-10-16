@@ -1,1 +1,0 @@
-{"lpod":"2.3.0","failures":0,"warnings":1,"checks":[{"id":"podman","status":"ok","message":"Podman 5.6.1 with Quadlet","fix":""},{"id":"linger","status":"warn","message":"Linger is off","fix":"loginctl enable-linger me"}]}
