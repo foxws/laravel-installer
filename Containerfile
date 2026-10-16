@@ -74,7 +74,6 @@ ENV QUEUE_CONNECTION=sync
 ENV INSTALLER_PORT=8085
 ENV INSTALLER_PODMAN=podman-remote
 ENV CONTAINER_HOST=unix:///run/podman/podman.sock
-ENV INSTALLER_DOCTOR_REPORT=/run/installer/doctor.json
 
 EXPOSE 8085
 

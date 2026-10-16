@@ -9,9 +9,20 @@ use Illuminate\Support\Facades\Process;
 use Livewire\Features\SupportLockedProperties\CannotUpdateLockedPropertyException;
 use Livewire\Livewire;
 
-function useDoctorReport(string $name): void
+/**
+ * Fake "podman info" through the socket, with the given values changed.
+ *
+ * @param  array<string, mixed>  $overrides
+ */
+function fakePodmanInfo(array $overrides = []): void
 {
-    config(['installer.doctor_report' => dirname(__DIR__)."/fixtures/doctor/{$name}.json"]);
+    $info = json_decode(file_get_contents(dirname(__DIR__).'/fixtures/podman/rootless.json'), true);
+
+    foreach ($overrides as $key => $value) {
+        data_set($info, $key, $value);
+    }
+
+    Process::fake(['*' => Process::result(output: json_encode($info))]);
 }
 
 it('shows the first step', function () {
@@ -24,13 +35,13 @@ it('shows the first step', function () {
 });
 
 it('moves through the steps', function () {
-    useDoctorReport('warnings');
+    fakePodmanInfo();
 
     Livewire::test(Installer::class)
         ->call('next')
         ->assertSet('current', 1)
-        ->assertSee('Linger is off')
-        ->assertSee('loginctl enable-linger me')
+        ->assertSee("can't see whether linger is on")
+        ->assertSee('loginctl enable-linger')
         ->call('next')
         ->assertSet('current', 2)
         ->assertSee('The app is installed')
@@ -41,22 +52,18 @@ it('moves through the steps', function () {
 });
 
 it('stops at the requirements while the host has problems', function () {
-    useDoctorReport('failures');
+    fakePodmanInfo(['host.idMappings.uidmap' => [['container_id' => 0, 'host_id' => 1000, 'size' => 1]]]);
 
     Livewire::test(Installer::class)
         ->call('next')
-        ->assertSee('me has no entry in /etc/subuid')
+        ->assertSee('no subordinate user and group IDs')
         ->assertSee('Fix the problems above on the host')
         ->call('next')
         ->assertSet('current', 1);
 });
 
-it('checks the host through the podman socket without a host report', function () {
-    useDoctorReport('missing');
-
-    Process::fake([
-        '*' => Process::result(output: file_get_contents(dirname(__DIR__).'/fixtures/podman/rootless.json')),
-    ]);
+it('checks the host through the podman socket', function () {
+    fakePodmanInfo();
 
     Livewire::test(Installer::class)
         ->call('next')
@@ -69,8 +76,6 @@ it('checks the host through the podman socket without a host report', function (
 });
 
 it('stops at the requirements when the podman socket cannot be reached', function () {
-    useDoctorReport('missing');
-
     Process::fake(['*' => Process::result(exitCode: 125)]);
 
     Livewire::test(Installer::class)
@@ -81,7 +86,5 @@ it('stops at the requirements when the podman socket cannot be reached', functio
 });
 
 it('does not let the browser skip steps', function () {
-    useDoctorReport('failures');
-
     Livewire::test(Installer::class)->set('current', 2);
 })->throws(CannotUpdateLockedPropertyException::class);
