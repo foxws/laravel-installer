@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\File;
 use Tests\TestCase;
 
 /*
@@ -49,4 +50,20 @@ expect()->extend('toBeOne', function () {
 function something()
 {
     // ..
+}
+
+/**
+ * @param  array<string, string>  $files
+ */
+function installerFolder(array $files): string
+{
+    $path = sys_get_temp_dir().'/installer-'.bin2hex(random_bytes(4));
+
+    File::ensureDirectoryExists($path);
+
+    foreach ($files as $name => $contents) {
+        File::put("{$path}/{$name}", $contents);
+    }
+
+    return $path;
 }

@@ -113,6 +113,10 @@ readonly class Manifest
                 throw InvalidManifestException::invalid($file, "input {$index} of step \"{$step['id']}\" needs a \"name\" in lower snake case.");
             }
 
+            if ($input['name'] === 'application') {
+                throw InvalidManifestException::invalid($file, "input {$index} of step \"{$step['id']}\" can't be named \"application\", since {application} is the app's quadlet prefix.");
+            }
+
             $type = InputType::tryFrom($input['type'] ?? InputType::Text->value)
                 ?? throw InvalidManifestException::invalid($file, "input \"{$input['name']}\" of step \"{$step['id']}\" has an unknown type.");
 
