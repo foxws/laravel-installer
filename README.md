@@ -91,7 +91,9 @@ A `services` step renders the app's presets with [foxws/laravel-podman](https://
 - The presets are rendered into the app's folder on the host, the workspace (see [Installing services](#installing-services)). Its `containers/stubs` and `config/podman.php` apply, so published and custom presets work as they do with `php artisan podman:setup`.
 - The app's `.env` decides what's rendered, but only its `APP_NAME`, `APP_URL`, `APP_ENV` and `PODMAN_*` values are read. Secrets such as `APP_KEY` never reach the installer.
 - Without `presets`, the app's `PODMAN_DEFAULT_PRESETS` are installed. List them in the step, since the package's own defaults are meant for development.
-- Each unit of a `.quadlets` file is written to `~/.config/containers/systemd`, as `podman quadlet install` does. Sockets and timers go to `~/.config/systemd/user` and are enabled. Then systemd reloads and starts the containers, and the installer shows their state until they all run.
+- Each unit of a `.quadlets` file is written to `~/.config/containers/systemd`, as `podman quadlet install` does. Sockets and timers go to `~/.config/systemd/user` and are enabled. Then systemd reloads, and the installer shows the state of what it started until it all runs:
+  - With an on-demand socket, it starts the socket's proxy service rather than the containers. The proxy requires the app, which wants the other services, so they keep running until the proxy is idle. Started on their own, services with `StopWhenUnneeded=yes` would stop again right away.
+  - Otherwise it starts the containers. Containers a timer starts, such as the scheduler, are left to their timer.
 - Running it again renders and installs the services again, so it's safe to retry after fixing a failed service.
 
 ## The image

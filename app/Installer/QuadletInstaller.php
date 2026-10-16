@@ -8,6 +8,7 @@ use Foxws\Podman\Exceptions\QuadletRenderException;
 use Foxws\Podman\Support\PodmanRenderedPreset;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\File;
+use Illuminate\Support\Str;
 
 /**
  * Installs rendered presets into the host user's Quadlet and systemd user
@@ -28,13 +29,25 @@ class QuadletInstaller
     }
 
     /**
+     * Install the presets' units, and say which ones to start:
+     *
+     * - Containers a timer starts, such as a scheduler, are left to their
+     *   timer, since they exit once they ran.
+     * - With an on-demand socket, its proxy service is started instead of the
+     *   containers. The proxy requires the app, which wants the rest, so they
+     *   keep running until it's idle. Started on their own, services with
+     *   "StopWhenUnneeded=yes" would stop again right away.
+     * - Otherwise, the containers, pods and kube units are started, and they
+     *   start the volumes, networks and builds they depend on.
+     *
      * @param  list<PodmanRenderedPreset>  $presets
      */
     public function install(array $presets): InstalledUnits
     {
-        $services = [];
-        $start = [];
-        $enable = [];
+        $runnable = [];
+        $sockets = [];
+        $timers = [];
+        $plainServices = [];
 
         File::ensureDirectoryExists($this->quadletPath);
 
@@ -48,10 +61,8 @@ class QuadletInstaller
             foreach ($units as $unit) {
                 File::put("{$this->quadletPath}/{$unit->fileName()}", $unit->contents);
 
-                $services[] = $unit->serviceName();
-
                 if ($unit->type->isRunnable()) {
-                    $start[] = $unit->serviceName();
+                    $runnable[] = $unit->serviceName();
                 }
             }
 
@@ -60,15 +71,29 @@ class QuadletInstaller
                 File::copy($file, "{$this->unitPath}/".basename($file));
             }
 
-            foreach ([...$preset->systemdUnitsOfType('socket'), ...$preset->systemdUnitsOfType('timer')] as $file) {
-                $enable[] = basename($file);
-            }
+            $sockets = [...$sockets, ...array_map(basename(...), $preset->systemdUnitsOfType('socket'))];
+            $timers = [...$timers, ...array_map(basename(...), $preset->systemdUnitsOfType('timer'))];
+            $plainServices = [...$plainServices, ...array_map(basename(...), $preset->systemdUnitsOfType('service'))];
         }
 
+        $proxies = array_values(array_filter(
+            array_map(fn (string $socket): string => Str::replaceLast('.socket', '.service', $socket), $sockets),
+            fn (string $service): bool => in_array($service, $plainServices, true),
+        ));
+
+        $timerServices = array_map(fn (string $timer): string => Str::replaceLast('.timer', '.service', $timer), $timers);
+
+        $start = $proxies !== []
+            ? $proxies
+            : array_values(array_diff($runnable, $timerServices));
+
+        $enable = array_values(array_unique([...$sockets, ...$timers]));
+        $start = array_values(array_unique($start));
+
         return new InstalledUnits(
-            services: array_values(array_unique($services)),
-            start: array_values(array_unique($start)),
-            enable: array_values(array_unique($enable)),
+            services: [...$start, ...$enable],
+            start: $start,
+            enable: $enable,
         );
     }
 }

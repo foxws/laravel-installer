@@ -84,7 +84,7 @@ trait InteractsWithServices
             return;
         }
 
-        $this->services[$step->id] = [...$units->services, ...$units->enable];
+        $this->services[$step->id] = $units->services;
 
         unset($this->serviceStates, $this->canContinue);
     }
