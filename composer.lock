@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "2330ae878738dcc906793b0af38e7c15",
+    "content-hash": "826ef634f283d52ef5bde16d4c35ccaf",
     "packages": [
         {
             "name": "brick/math",
@@ -513,16 +513,16 @@
         },
         {
             "name": "foxws/laravel-podman",
-            "version": "dev-configurable-base-path",
+            "version": "dev-quadlet-units",
             "source": {
                 "type": "git",
                 "url": "https://github.com/foxws/laravel-podman.git",
-                "reference": "9621c5104affe117234949d6f333fff5603d00ad"
+                "reference": "fd324c8bede093e277cfc850264caa9774554d96"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/foxws/laravel-podman/zipball/9621c5104affe117234949d6f333fff5603d00ad",
-                "reference": "9621c5104affe117234949d6f333fff5603d00ad",
+                "url": "https://api.github.com/repos/foxws/laravel-podman/zipball/fd324c8bede093e277cfc850264caa9774554d96",
+                "reference": "fd324c8bede093e277cfc850264caa9774554d96",
                 "shasum": ""
             },
             "require": {
@@ -589,7 +589,7 @@
             ],
             "support": {
                 "issues": "https://github.com/foxws/laravel-podman/issues",
-                "source": "https://github.com/foxws/laravel-podman/tree/configurable-base-path"
+                "source": "https://github.com/foxws/laravel-podman/tree/quadlet-units"
             },
             "funding": [
                 {
@@ -597,7 +597,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2026-10-16T07:24:55+00:00"
+            "time": "2026-10-16T07:54:52+00:00"
         },
         {
             "name": "fruitcake/php-cors",
@@ -9969,7 +9969,7 @@
     "aliases": [
         {
             "package": "foxws/laravel-podman",
-            "version": "dev-configurable-base-path",
+            "version": "dev-quadlet-units",
             "alias": "5.6.0",
             "alias_normalized": "5.6.0.0"
         }

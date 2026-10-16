@@ -34,9 +34,9 @@ it('only reads the app and Podman values from the env file', function () {
 });
 
 it('renders the app\'s presets into the workspace with its own values', function () {
-    $folders = $this->workspace->render();
+    $rendered = $this->workspace->render();
 
-    expect($folders)->toBe(["{$this->path}/podman/production"])
+    expect(array_map(fn ($preset) => $preset->path, $rendered))->toBe(["{$this->path}/podman/production"])
         ->and(File::get("{$this->path}/podman/production/app.quadlets"))
         ->toContain('# FileName=acme')
         ->toContain('/home/ada/acme/podman/production/runtimes');

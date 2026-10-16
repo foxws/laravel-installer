@@ -16,9 +16,9 @@ class ServicesException extends RuntimeException
         return new self('There are no presets to install. Set PODMAN_DEFAULT_PRESETS in the app\'s .env file, or list "presets" in the step.');
     }
 
-    public static function invalidQuadlets(string $file): self
+    public static function invalidQuadlets(string $error): self
     {
-        return new self("{$file} has a unit without a \"# FileName=\" line or a known Quadlet section.");
+        return new self("The rendered services can't be installed: {$error}");
     }
 
     public static function systemd(string $action, string $error): self

@@ -7,6 +7,7 @@ use Dotenv\Dotenv;
 use Foxws\Podman\Support\PodmanConfig;
 use Foxws\Podman\Support\PodmanPresetGenerator;
 use Foxws\Podman\Support\PodmanQuadletPath;
+use Foxws\Podman\Support\PodmanRenderedPreset;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Str;
@@ -78,10 +79,10 @@ class Workspace
 
     /**
      * Render the given presets, or the app's default ones, into the
-     * workspace. Returns the folders they were rendered to.
+     * workspace.
      *
      * @param  list<string>  $presets
-     * @return list<string>
+     * @return list<PodmanRenderedPreset>
      */
     public function render(array $presets = []): array
     {
@@ -94,7 +95,7 @@ class Workspace
 
             $generator = new PodmanPresetGenerator;
 
-            return array_map(fn (string $preset): string => $generator->generate($preset), $presets);
+            return array_map(fn (string $preset): PodmanRenderedPreset => $generator->generate($preset), $presets);
         });
     }
 
