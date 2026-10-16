@@ -77,7 +77,7 @@ it('leaves containers a timer starts to their timer', function () {
         ->and($units->enable)->toBe(['acme-schedule.timer']);
 });
 
-it('starts the on-demand proxy instead of the containers', function () {
+it('wakes the on-demand socket instead of starting anything', function () {
     File::put("{$this->root}/rendered/acme-ondemand.socket", "[Socket]\nListenStream=8000\n");
     File::put("{$this->root}/rendered/acme-ondemand.service", "[Service]\nExecStart=/usr/lib/systemd/systemd-socket-proxyd 127.0.0.1:18000\n");
 
@@ -91,8 +91,10 @@ it('starts the on-demand proxy instead of the containers', function () {
 
     $units = $this->installer->install([$rendered]);
 
-    expect($units->start)->toBe(['acme-ondemand.service'])
+    expect($units->start)->toBe([])
         ->and($units->enable)->toBe(['acme-ondemand.socket', 'acme-schedule.timer'])
+        ->and($units->wake)->toBe(['127.0.0.1:8000'])
+        ->and($units->services)->toBe(['acme-ondemand.service', 'acme-ondemand.socket', 'acme-schedule.timer'])
         ->and(File::exists("{$this->root}/units/acme-ondemand.service"))->toBeTrue();
 });
 
@@ -105,3 +107,15 @@ it('refuses rendered units that are not valid', function (string $contents) {
     'no Quadlet section' => "# FileName=acme\n[Unit]\nDescription=Acme\n",
     'a path as file name' => "# FileName=../acme\n[Container]\nImage=acme\n",
 ])->throws(ServicesException::class, "The rendered services can't be installed");
+
+it('reads the address to wake a socket on', function (string $listen, ?string $address) {
+    File::put("{$this->root}/acme.socket", "[Socket]\nListenStream={$listen}\n");
+
+    expect($this->installer->listenAddress("{$this->root}/acme.socket"))->toBe($address);
+})->with([
+    'a port' => ['8001', '127.0.0.1:8001'],
+    'every IPv4 address' => ['0.0.0.0:8001', '127.0.0.1:8001'],
+    'every IPv6 address' => ['[::]:8001', '127.0.0.1:8001'],
+    'one address' => ['192.168.1.100:8001', '192.168.1.100:8001'],
+    'a file' => ['/run/acme.sock', null],
+]);

@@ -33,10 +33,12 @@ class QuadletInstaller
      *
      * - Containers a timer starts, such as a scheduler, are left to their
      *   timer, since they exit once they ran.
-     * - With an on-demand socket, its proxy service is started instead of the
-     *   containers. The proxy requires the app, which wants the rest, so they
-     *   keep running until it's idle. Started on their own, services with
-     *   "StopWhenUnneeded=yes" would stop again right away.
+     * - With an on-demand socket, nothing is started directly. The socket is
+     *   woken by connecting to its address instead, like a visitor would, so
+     *   it hands itself to its proxy service. The proxy requires the app,
+     *   which wants the rest, so they keep running until it's idle. Started
+     *   on their own, the proxy gets no socket, and services with
+     *   "StopWhenUnneeded=yes" stop again right away.
      * - Otherwise, the containers, pods and kube units are started, and they
      *   start the volumes, networks and builds they depend on.
      *
@@ -83,17 +85,46 @@ class QuadletInstaller
 
         $timerServices = array_map(fn (string $timer): string => Str::replaceLast('.timer', '.service', $timer), $timers);
 
-        $start = $proxies !== []
-            ? $proxies
-            : array_values(array_diff($runnable, $timerServices));
-
+        $start = $proxies !== [] ? [] : array_values(array_unique(array_diff($runnable, $timerServices)));
         $enable = array_values(array_unique([...$sockets, ...$timers]));
-        $start = array_values(array_unique($start));
+
+        $wake = array_values(array_filter(array_map(
+            fn (string $proxy): ?string => $this->listenAddress("{$this->unitPath}/".Str::replaceLast('.service', '.socket', $proxy)),
+            $proxies,
+        )));
 
         return new InstalledUnits(
-            services: [...$start, ...$enable],
+            services: [...$start, ...$proxies, ...$enable],
             start: $start,
             enable: $enable,
+            wake: $wake,
         );
+    }
+
+    /**
+     * The TCP address a socket listens on, as a host and port to connect to:
+     * a bare port or a wildcard address becomes "127.0.0.1". Null for
+     * sockets on a file path.
+     */
+    public function listenAddress(string $socket): ?string
+    {
+        if (! preg_match('/^ListenStream=(.+)$/m', (string) File::get($socket), $match)) {
+            return null;
+        }
+
+        $listen = Str::trim($match[1]);
+
+        if (Str::startsWith($listen, ['/', '@'])) {
+            return null;
+        }
+
+        if (ctype_digit($listen)) {
+            return "127.0.0.1:{$listen}";
+        }
+
+        $port = Str::afterLast($listen, ':');
+        $host = Str::beforeLast($listen, ':');
+
+        return in_array($host, ['0.0.0.0', '[::]', '::', '*'], true) ? "127.0.0.1:{$port}" : "{$host}:{$port}";
     }
 }

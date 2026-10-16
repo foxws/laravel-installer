@@ -113,7 +113,7 @@ A `services` step renders the app's presets with [foxws/laravel-podman](https://
 - The app's `.env` decides what's rendered, but only its `APP_NAME`, `APP_URL`, `APP_ENV` and `PODMAN_*` values are read. Secrets such as `APP_KEY` never reach the installer.
 - Without `presets`, the app's `PODMAN_DEFAULT_PRESETS` are installed. List them in the step, since the package's own defaults are meant for development.
 - Each unit of a `.quadlets` file is written to `~/.config/containers/systemd`, as `podman quadlet install` does. Sockets and timers go to `~/.config/systemd/user` and are enabled. Then systemd reloads, and the installer shows the state of what it started until it all runs:
-  - With an on-demand socket, it starts the socket's proxy service rather than the containers. The proxy requires the app, which wants the other services, so they keep running until the proxy is idle. Started on their own, services with `StopWhenUnneeded=yes` would stop again right away.
+  - With an on-demand socket, it wakes the app the way a visitor would: a short-lived container on the host's network, from the installer's own image, requests `/up` on the socket's address. The socket then starts its proxy, which requires the app, which wants the other services, so they keep running until the proxy is idle. Started directly, the proxy would get no socket, and services with `StopWhenUnneeded=yes` would stop again right away. Set `INSTALLER_IMAGE` when the installer can't look up its own image.
   - Otherwise it starts the containers. Containers a timer starts, such as the scheduler, are left to their timer.
 - Running it again renders and installs the services again, so it's safe to retry after fixing a failed service.
 

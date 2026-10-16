@@ -33,6 +33,19 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Image
+    |--------------------------------------------------------------------------
+    |
+    | The installer's own image, which runs short-lived helpers on the host,
+    | such as waking an on-demand app. When it's not set, the installer
+    | looks it up from its own container.
+    |
+    */
+
+    'image' => env('INSTALLER_IMAGE'),
+
+    /*
+    |--------------------------------------------------------------------------
     | Workspace
     |--------------------------------------------------------------------------
     |

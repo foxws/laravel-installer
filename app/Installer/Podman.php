@@ -34,6 +34,37 @@ class Podman
     }
 
     /**
+     * Connect to an on-demand socket on the host, like a visitor would, so it
+     * starts the app. A short-lived container on the host's network does it,
+     * since the installer has its own. It runs the installer's own image,
+     * which has curl, and waits in the background until the app answers.
+     */
+    public function wake(string $address): ProcessResult
+    {
+        return Process::timeout(60)->run([
+            Config::string('installer.podman'), 'run', '--rm', '--detach', '--network=host',
+            '--entrypoint', 'curl', $this->ownImage(),
+            '--silent', '--output', '/dev/null', '--max-time', '900', "http://{$address}/up",
+        ]);
+    }
+
+    /**
+     * The image the installer runs from, so helpers don't need another one.
+     */
+    public function ownImage(): string
+    {
+        $image = Config::get('installer.image');
+
+        if (is_string($image) && $image !== '') {
+            return $image;
+        }
+
+        $result = Process::timeout(30)->run([Config::string('installer.podman'), 'container', 'inspect', '--format', '{{.ImageName}}', (string) gethostname()]);
+
+        return $result->successful() && trim($result->output()) !== '' ? trim($result->output()) : 'ghcr.io/foxws/laravel-installer:edge';
+    }
+
+    /**
      * Environment values are handed to "podman exec" by name only ("-e NAME"),
      * so Podman reads them from its own environment and they never show up
      * in its arguments.

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Livewire\Concerns;
 
+use App\Installer\Podman;
 use App\Installer\QuadletInstaller;
 use App\Installer\ServicesException;
 use App\Installer\Systemd;
@@ -61,7 +62,7 @@ trait InteractsWithServices
             ->all();
     }
 
-    public function installServices(Systemd $systemd): void
+    public function installServices(Systemd $systemd, Podman $podman): void
     {
         $step = $this->step;
 
@@ -77,6 +78,14 @@ trait InteractsWithServices
 
             foreach ([...$units->start, ...$units->enable] as $unit) {
                 $systemd->start($unit);
+            }
+
+            foreach ($units->wake as $address) {
+                $result = $podman->wake($address);
+
+                if (! $result->successful()) {
+                    throw ServicesException::wake($address, trim($result->errorOutput()) ?: "exit code {$result->exitCode()}");
+                }
             }
         } catch (ServicesException $exception) {
             $this->addError('services', $exception->getMessage());
