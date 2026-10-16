@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "826ef634f283d52ef5bde16d4c35ccaf",
+    "content-hash": "232b9b7b18328f9822db392af6de0cee",
     "packages": [
         {
             "name": "brick/math",
@@ -513,16 +513,16 @@
         },
         {
             "name": "foxws/laravel-podman",
-            "version": "dev-quadlet-units",
+            "version": "dev-main",
             "source": {
                 "type": "git",
                 "url": "https://github.com/foxws/laravel-podman.git",
-                "reference": "9d2e2678f116710cd7ede96fad24c9c479fe4ec3"
+                "reference": "4462c538025371e97149a902000d63360b71293e"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/foxws/laravel-podman/zipball/9d2e2678f116710cd7ede96fad24c9c479fe4ec3",
-                "reference": "9d2e2678f116710cd7ede96fad24c9c479fe4ec3",
+                "url": "https://api.github.com/repos/foxws/laravel-podman/zipball/4462c538025371e97149a902000d63360b71293e",
+                "reference": "4462c538025371e97149a902000d63360b71293e",
                 "shasum": ""
             },
             "require": {
@@ -552,6 +552,7 @@
             "suggest": {
                 "aws/aws-sdk-php": "Required to use the \"podman:s3-setup\" command (^3.322)."
             },
+            "default-branch": true,
             "type": "library",
             "extra": {
                 "laravel": {
@@ -589,7 +590,7 @@
             ],
             "support": {
                 "issues": "https://github.com/foxws/laravel-podman/issues",
-                "source": "https://github.com/foxws/laravel-podman/tree/quadlet-units"
+                "source": "https://github.com/foxws/laravel-podman/tree/main"
             },
             "funding": [
                 {
@@ -597,7 +598,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2026-10-16T08:07:07+00:00"
+            "time": "2026-10-16T08:29:08+00:00"
         },
         {
             "name": "fruitcake/php-cors",
@@ -9969,7 +9970,7 @@
     "aliases": [
         {
             "package": "foxws/laravel-podman",
-            "version": "dev-quadlet-units",
+            "version": "dev-main",
             "alias": "5.6.0",
             "alias_normalized": "5.6.0.0"
         }
