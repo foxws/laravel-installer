@@ -10,6 +10,7 @@ use App\Installer\Podman;
 use App\Installer\ServicesException;
 use App\Installer\Step;
 use App\Installer\Workspace;
+use Illuminate\Support\Str;
 use Livewire\Attributes\Locked;
 
 /**
@@ -143,7 +144,10 @@ trait InteractsWithCommands
      */
     protected function plainOutput(string $output): string
     {
-        return trim((string) preg_replace('/\e\[[0-9;?]*[ -\/]*[@-~]|\e\][^\a\e]*(?:\a|\e\\\\)/', '', $output));
+        return Str::of($output)
+            ->replaceMatches('/\e\[[0-9;?]*[ -\/]*[@-~]|\e\][^\a\e]*(?:\a|\e\\\\)/', '')
+            ->trim()
+            ->value();
     }
 
     /**
