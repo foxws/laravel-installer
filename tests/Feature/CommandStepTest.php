@@ -100,3 +100,17 @@ it('passes secrets to a seeder through the environment by name', function () {
         'php', 'artisan', 'db:seed', '--class=InstallerSeeder', '--force',
     ] && $process->environment === ['INSTALLER_TOKEN' => 's3cret']);
 });
+
+it('runs a command step without inputs', function () {
+    app()->instance(Manifest::class, Manifest::fromPath(dirname(__DIR__).'/fixtures/installer-migrate'));
+    Process::fake(['*' => Process::result(output: 'Nothing to migrate.')]);
+
+    Livewire::test(Installer::class)
+        ->call('runCommand')
+        ->assertHasNoErrors()
+        ->assertSet('completed', ['migrate'])
+        ->call('next')
+        ->assertSet('current', 1);
+
+    Process::assertRan(fn (PendingProcess $process) => $process->command === ['podman', 'exec', 'systemd-demo', 'php', 'artisan', 'migrate', '--force']);
+});
