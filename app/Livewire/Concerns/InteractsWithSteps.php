@@ -45,6 +45,7 @@ trait InteractsWithSteps
             StepType::Requirements => $this->passesRequirements(),
             StepType::Command => $this->hasCompleted($this->step),
             StepType::Services => $this->servicesAreRunning(),
+            StepType::Secrets => $this->secretsExist(),
         };
     }
 
@@ -68,6 +69,9 @@ trait InteractsWithSteps
     {
         $this->resetCommand();
 
-        unset($this->step, $this->canContinue, $this->workspace, $this->serviceStates);
+        $this->secretValues = [];
+        $this->replaceSecrets = false;
+
+        unset($this->step, $this->canContinue, $this->workspace, $this->serviceStates, $this->requiredSecrets);
     }
 }

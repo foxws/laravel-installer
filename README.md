@@ -38,7 +38,7 @@ steps:
 | ------ | ---------------------------------------------------------------------------- |
 | `id`   | A unique id for the step. It's also the title when the Markdown doesn't set one |
 | `file` | The Markdown file next to the manifest. Its front matter can set a `title`   |
-| `type` | `content` (default), `requirements`, which shows the host checks, `services` or `command` |
+| `type` | `content` (default), `requirements`, which shows the host checks, `secrets`, `services` or `command` |
 
 Raw HTML in the Markdown is stripped. See [`installer/`](installer) for the example.
 
@@ -76,6 +76,27 @@ A `command` step asks for its inputs, then runs a command in the app's container
 - When `skip_if` succeeds, the step was already done and its command is skipped, so running the installer again is safe.
 - `rules` are Laravel validation rules, `required` by default. `type` is `text` (default), `email` or `password`.
 - The installer only continues once the command succeeded.
+
+### Secrets steps
+
+The containers can't start before the Podman secrets they use exist, so put a `secrets` step before the `services` step. It renders the same presets, lists every `Secret=` of their units, and creates the missing ones with `podman secret create` through the socket, without lpod:
+
+```yaml
+- id: secrets
+  type: secrets
+  file: secrets.md
+  presets: [production]
+  values:                          # type=env secrets, by target: the .env key to read
+    POSTGRES_DB: DB_DATABASE
+    POSTGRES_USER: DB_USERNAME
+    POSTGRES_PASSWORD: DB_PASSWORD
+  files:                           # mounted secrets, by target: the workspace file
+    /app/.env: .env
+```
+
+- Mounted secrets, such as the app's `.env` at `/app/.env`, are created from a file in the workspace, the app's `.env` by default. Podman reads the file itself.
+- `type=env` secrets take their value from the key in `values`. Without one, or when the `.env` doesn't have it, you type the value in, or leave it empty to generate one.
+- Values only go to Podman through stdin and are cleared right after. Existing secrets are kept, unless you choose to replace them.
 
 ### Services steps
 

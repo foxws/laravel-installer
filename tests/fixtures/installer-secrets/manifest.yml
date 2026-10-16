@@ -1,0 +1,12 @@
+name: Demo
+
+steps:
+  - id: secrets
+    type: secrets
+    file: secrets.md
+    presets: [demo]
+    values:
+      POSTGRES_PASSWORD: DB_PASSWORD
+
+  - id: finish
+    file: finish.md

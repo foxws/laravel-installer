@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "232b9b7b18328f9822db392af6de0cee",
+    "content-hash": "563e57c3118d7e6ff95d8a97508c9be9",
     "packages": [
         {
             "name": "brick/math",
@@ -513,16 +513,16 @@
         },
         {
             "name": "foxws/laravel-podman",
-            "version": "dev-main",
+            "version": "dev-quadlet-secrets",
             "source": {
                 "type": "git",
                 "url": "https://github.com/foxws/laravel-podman.git",
-                "reference": "4462c538025371e97149a902000d63360b71293e"
+                "reference": "7e6a12788fbe062a1b84e87ef9233ffbae935fe6"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/foxws/laravel-podman/zipball/4462c538025371e97149a902000d63360b71293e",
-                "reference": "4462c538025371e97149a902000d63360b71293e",
+                "url": "https://api.github.com/repos/foxws/laravel-podman/zipball/7e6a12788fbe062a1b84e87ef9233ffbae935fe6",
+                "reference": "7e6a12788fbe062a1b84e87ef9233ffbae935fe6",
                 "shasum": ""
             },
             "require": {
@@ -530,6 +530,7 @@
                 "illuminate/console": "^11.0|^12.0|^13.0",
                 "illuminate/contracts": "^11.0||^12.0||^13.0",
                 "illuminate/filesystem": "^11.0|^12.0|^13.0",
+                "illuminate/process": "^11.0|^12.0|^13.0",
                 "illuminate/support": "^11.0|^12.0|^13.0",
                 "php": "^8.4",
                 "spatie/laravel-package-tools": "^1.16",
@@ -552,7 +553,6 @@
             "suggest": {
                 "aws/aws-sdk-php": "Required to use the \"podman:s3-setup\" command (^3.322)."
             },
-            "default-branch": true,
             "type": "library",
             "extra": {
                 "laravel": {
@@ -590,7 +590,7 @@
             ],
             "support": {
                 "issues": "https://github.com/foxws/laravel-podman/issues",
-                "source": "https://github.com/foxws/laravel-podman/tree/main"
+                "source": "https://github.com/foxws/laravel-podman/tree/quadlet-secrets"
             },
             "funding": [
                 {
@@ -598,7 +598,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2026-10-16T08:29:08+00:00"
+            "time": "2026-10-16T09:43:54+00:00"
         },
         {
             "name": "fruitcake/php-cors",
@@ -9970,7 +9970,7 @@
     "aliases": [
         {
             "package": "foxws/laravel-podman",
-            "version": "dev-main",
+            "version": "dev-quadlet-secrets",
             "alias": "5.6.0",
             "alias_normalized": "5.6.0.0"
         }

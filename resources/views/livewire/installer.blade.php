@@ -150,6 +150,57 @@
         @enderror
     @endif
 
+    @if ($this->step->type === \App\Installer\StepType::Secrets)
+        @if ($this->requiredSecrets === null)
+            <p class="mt-6 rounded-lg border border-zinc-200 p-4 text-sm dark:border-zinc-800">
+                No workspace is mounted, so the installer can't read which secrets the services need.
+                Start it again with the app's folder mounted at <code>/workspace</code>.
+            </p>
+        @else
+            <form wire:submit="createSecrets" class="mt-6 space-y-3">
+                @foreach ($this->requiredSecrets as $required)
+                    <div wire:key="secret-{{ $required['secret']->name }}" class="rounded-lg border border-zinc-200 p-4 text-sm dark:border-zinc-800">
+                        <p class="flex justify-between gap-4">
+                            <code>{{ $required['secret']->name }}</code>
+                            <span @class([
+                                'text-green-600' => $required['exists'],
+                                'text-zinc-500' => ! $required['exists'],
+                            ])>{{ $required['exists'] ? 'Exists' : 'Missing' }}</span>
+                        </p>
+                        <p class="mt-1 text-zinc-500">
+                            For {{ implode(', ', $required['secret']->targets) }}. {{ $required['source'] }}.
+                        </p>
+
+                        @if ($required['input'] && (! $required['exists'] || $replaceSecrets))
+                            <input type="password" wire:model="secretValues.{{ $required['secret']->name }}" autocomplete="new-password"
+                                aria-label="{{ $required['secret']->name }}" placeholder="Leave empty to generate one"
+                                class="mt-2 w-full rounded-lg border border-zinc-300 bg-white px-3 py-2 dark:border-zinc-700 dark:bg-zinc-900">
+                        @endif
+                    </div>
+                @endforeach
+
+                @if (collect($this->requiredSecrets)->contains('exists', true))
+                    <label class="flex items-center gap-2 text-sm">
+                        <input type="checkbox" wire:model.live="replaceSecrets">
+                        Replace the secrets that exist already
+                    </label>
+                @endif
+
+                @if ($this->requiredSecrets !== [] && (! $this->canContinue || $replaceSecrets))
+                    <button type="submit" wire:loading.attr="disabled"
+                        class="rounded-lg bg-zinc-900 px-4 py-2 text-white disabled:opacity-40 dark:bg-white dark:text-zinc-900">
+                        <span wire:loading.remove wire:target="createSecrets">Create secrets</span>
+                        <span wire:loading wire:target="createSecrets">Creating…</span>
+                    </button>
+                @endif
+            </form>
+        @endif
+
+        @error('secrets')
+            <p class="mt-4 text-red-700 dark:text-red-300">{{ $message }}</p>
+        @enderror
+    @endif
+
     <nav class="mt-10 flex justify-between">
         <button type="button" wire:click="previous" @disabled($current === 0)
             class="rounded-lg px-4 py-2 text-zinc-700 disabled:opacity-40 dark:text-zinc-300">

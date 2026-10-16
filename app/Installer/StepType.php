@@ -28,4 +28,10 @@ enum StepType: string
      * installs them as Quadlets and starts them.
      */
     case Services = 'services';
+
+    /**
+     * Creates the Podman secrets the app's presets use, from the app's
+     * ".env", files in the workspace, or values given in the installer.
+     */
+    case Secrets = 'secrets';
 }
