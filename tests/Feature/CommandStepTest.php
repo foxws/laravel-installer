@@ -136,3 +136,12 @@ it('fills in the app\'s quadlet prefix as {application}', function () {
 
     File::deleteDirectory($workspace);
 });
+
+it('shows the output without terminal colors', function () {
+    app()->instance(Manifest::class, Manifest::fromPath(dirname(__DIR__).'/fixtures/installer-migrate'));
+    Process::fake(['*' => Process::result(output: "\e[32m User has been created successfully.\e[39m\n\e]8;;https://example.com\e\\link\e]8;;\e\\")]);
+
+    Livewire::test(Installer::class)
+        ->call('runCommand')
+        ->assertSet('output', "User has been created successfully.\nlink");
+});
