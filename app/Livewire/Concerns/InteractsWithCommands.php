@@ -10,6 +10,7 @@ use App\Installer\Podman;
 use App\Installer\ServicesException;
 use App\Installer\Step;
 use App\Installer\Workspace;
+use Illuminate\Support\Str;
 use Livewire\Attributes\Locked;
 
 /**
@@ -82,7 +83,7 @@ trait InteractsWithCommands
             env: array_map(fn (string $value): string => CommandRun::fillString($value, $values), $run->env),
         );
 
-        $output = $this->hideSecrets($step, $values, trim($result->output()."\n".$result->errorOutput()));
+        $output = $this->hideSecrets($step, $values, $this->plainOutput($result->output()."\n".$result->errorOutput()));
 
         if ($result->successful()) {
             $this->complete($step, $output);
@@ -135,6 +136,18 @@ trait InteractsWithCommands
         foreach ($step->secretInputs() as $input) {
             unset($this->values[$input->name]);
         }
+    }
+
+    /**
+     * The output without terminal escape sequences, such as the colors
+     * Laravel Prompts adds even when there's no terminal.
+     */
+    protected function plainOutput(string $output): string
+    {
+        return Str::of($output)
+            ->replaceMatches('/\e\[[0-9;?]*[ -\/]*[@-~]|\e\][^\a\e]*(?:\a|\e\\\\)/', '')
+            ->trim()
+            ->value();
     }
 
     /**
