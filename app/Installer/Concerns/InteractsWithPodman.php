@@ -20,6 +20,15 @@ use Illuminate\Support\Facades\Config;
 trait InteractsWithPodman
 {
     /**
+     * The app's quadlet prefix, such as "my-app", which names its units and
+     * containers ("systemd-my-app").
+     */
+    public function application(): string
+    {
+        return $this->usingPodmanConfig(fn (): string => (new PodmanConfig)->prefix());
+    }
+
+    /**
      * What a services step will install, to show before it does.
      *
      * @param  list<string>  $presets

@@ -55,7 +55,7 @@ A `command` step asks for its inputs, then runs a command in the app's container
     - { name: email, label: Email, type: email, rules: required|email }
     - { name: password, label: Password, type: password, rules: required|min:12 }
   run:
-    container: systemd-my-project
+    container: systemd-{application}
     command: [php, artisan, users:create, --super-admin, --no-interaction, "--name={name}", "--email={email}"]
     stdin: "{password}"
     skip_if: [php, artisan, users:exists, --super-admin]
@@ -64,13 +64,13 @@ A `command` step asks for its inputs, then runs a command in the app's container
   type: command
   file: seed.md
   run:
-    container: systemd-my-project
+    container: systemd-{application}
     command: [php, artisan, db:seed, --class=InstallerSeeder, --force]
     env:
       ADMIN_PASSWORD: "{password}"
 ```
 
-- `{name}` is replaced with the value of the input with that name.
+- `{name}` is replaced with the value of the input with that name. `{application}` is the app's quadlet prefix from the workspace (`PODMAN_QUADLET_PREFIX`, or `APP_NAME` in kebab case), so `container: systemd-{application}` follows the app's name, such as `systemd-my-project-dev` for `APP_NAME=my-project-dev`.
 - `command` and `skip_if` are lists of arguments and never go through a shell, so a value can't add a command of its own.
 - Inputs of `type: password`, or with `secret: true`, can only be passed through `stdin` or `env`, because arguments show up in `ps` and `podman inspect`. `env` values are handed to `podman exec` by name only (`--env NAME`). Secret values are cleared once the command ran, and hidden in the output the installer shows.
 - When `skip_if` succeeds, the step was already done and its command is skipped, so running the installer again is safe.

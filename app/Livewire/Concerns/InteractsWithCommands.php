@@ -7,7 +7,9 @@ namespace App\Livewire\Concerns;
 use App\Installer\CommandRun;
 use App\Installer\Input;
 use App\Installer\Podman;
+use App\Installer\ServicesException;
 use App\Installer\Step;
+use App\Installer\Workspace;
 use Livewire\Attributes\Locked;
 
 /**
@@ -57,6 +59,14 @@ trait InteractsWithCommands
 
         $values = collect($step->inputs)->mapWithKeys(fn (Input $input): array => [$input->name => (string) ($this->values[$input->name] ?? '')])->all();
         $run = $step->run;
+
+        try {
+            $values = [...$this->placeholders(), ...$values];
+        } catch (ServicesException $exception) {
+            $this->addError('command', $exception->getMessage());
+
+            return;
+        }
         $container = CommandRun::fillString($run->container, $values);
 
         if ($run->skipIf !== null && $podman->exec($container, CommandRun::fill($run->skipIf, $values))->successful()) {
@@ -83,6 +93,20 @@ trait InteractsWithCommands
         $this->clearSecrets($step);
         $this->output = $output;
         $this->addError('command', "The command failed with exit code {$result->exitCode()}.");
+    }
+
+    /**
+     * The values every command step can use besides its inputs:
+     * "{application}", the app's quadlet prefix from the workspace, so a
+     * container can be named "systemd-{application}".
+     *
+     * @return array<string, string>
+     */
+    protected function placeholders(): array
+    {
+        $workspace = Workspace::fromConfig();
+
+        return $workspace->isAvailable() ? ['application' => $workspace->application()] : [];
     }
 
     protected function hasCompleted(Step $step): bool

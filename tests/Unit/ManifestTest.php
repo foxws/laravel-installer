@@ -5,23 +5,6 @@ declare(strict_types=1);
 use App\Installer\InvalidManifestException;
 use App\Installer\Manifest;
 use App\Installer\StepType;
-use Illuminate\Support\Facades\File;
-
-/**
- * @param  array<string, string>  $files
- */
-function installerFolder(array $files): string
-{
-    $path = sys_get_temp_dir().'/installer-'.bin2hex(random_bytes(4));
-
-    File::ensureDirectoryExists($path);
-
-    foreach ($files as $name => $contents) {
-        File::put("{$path}/{$name}", $contents);
-    }
-
-    return $path;
-}
 
 it('reads the steps of the example installer', function () {
     $manifest = Manifest::fromPath(dirname(__DIR__, 2).'/installer');
@@ -118,3 +101,10 @@ it('refuses secret sources that are not a map of names', function () {
         'secrets.md' => '# Secrets',
     ]));
 })->throws(InvalidManifestException::class, 'must map secret targets to names');
+
+it('refuses an input named application', function () {
+    Manifest::fromPath(installerFolder([
+        'manifest.yml' => "name: Demo\nsteps:\n  - { id: admin, type: command, file: admin.md, inputs: [{ name: application }], run: { container: app, command: [php] } }\n",
+        'admin.md' => '# Admin',
+    ]));
+})->throws(InvalidManifestException::class, 'can\'t be named "application"');
