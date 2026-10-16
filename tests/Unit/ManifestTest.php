@@ -82,3 +82,20 @@ it('reads the inputs and command of a command step', function () {
         ->and($step->run->stdin)->toBe('{password}')
         ->and($step->run->skipIf)->toBe(['php', 'artisan', 'users:exists', '--super-admin']);
 });
+
+it('reads the presets of a services step', function () {
+    $manifest = Manifest::fromPath(installerFolder([
+        'manifest.yml' => "name: Demo\nsteps:\n  - { id: services, type: services, file: services.md, presets: [production, proxy] }\n",
+        'services.md' => '# Services',
+    ]));
+
+    expect($manifest->steps[0]->type)->toBe(StepType::Services)
+        ->and($manifest->steps[0]->presets)->toBe(['production', 'proxy']);
+});
+
+it('refuses presets that are not a list of names', function () {
+    Manifest::fromPath(installerFolder([
+        'manifest.yml' => "name: Demo\nsteps:\n  - { id: services, type: services, file: services.md, presets: production }\n",
+        'services.md' => '# Services',
+    ]));
+})->throws(InvalidManifestException::class, 'must be a list of preset names');

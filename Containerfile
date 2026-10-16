@@ -25,9 +25,10 @@ ENV TZ=UTC
 ENV LANG=C.UTF-8
 
 # The Podman client, which runs the steps' commands through the host's Podman
-# socket, mounted at /run/podman/podman.sock
+# socket, mounted at /run/podman/podman.sock, and "dbus-send", which installs
+# and starts the services through the host user's systemd
 RUN apt-get update \
-    && apt-get install -y --no-install-recommends podman-remote \
+    && apt-get install -y --no-install-recommends dbus-bin podman-remote \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
@@ -54,6 +55,11 @@ COPY --from=assets /app/public/build ./public/build
 RUN composer dump-autoload --optimize --no-dev \
     && php artisan package:discover
 
+# "lpod installer" runs the installer as the host user's own UID
+# ("--userns=keep-id"), so the files it writes are theirs and their D-Bus
+# session bus accepts it. Whatever UID that is, it needs to write here.
+RUN chmod -R a+rwX /app/storage /app/bootstrap/cache /data /config
+
 COPY --chmod=755 runtime/entrypoint.sh /usr/local/bin/installer
 COPY runtime/Caddyfile /etc/installer/Caddyfile
 
@@ -70,8 +76,9 @@ ENV INSTALLER_PODMAN=podman-remote
 ENV CONTAINER_HOST=unix:///run/podman/podman.sock
 ENV INSTALLER_DOCTOR_REPORT=/run/installer/doctor.json
 
-# Runs as root in the container, which rootless Podman maps to the host user
-# that owns the Podman socket.
+ENV INSTALLER_QUADLET_PATH=/run/installer/quadlets
+ENV INSTALLER_UNIT_PATH=/run/installer/units
+
 EXPOSE 8085
 
 ENTRYPOINT ["/usr/local/bin/installer"]

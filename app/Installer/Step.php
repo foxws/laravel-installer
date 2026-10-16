@@ -8,6 +8,7 @@ readonly class Step
 {
     /**
      * @param  list<Input>  $inputs
+     * @param  list<string>  $presets  The presets a services step installs, or the app's default ones when empty.
      */
     public function __construct(
         public string $id,
@@ -16,6 +17,7 @@ readonly class Step
         public string $html,
         public array $inputs = [],
         public ?CommandRun $run = null,
+        public array $presets = [],
     ) {}
 
     /**

@@ -96,6 +96,67 @@
         @endif
     @endif
 
+    @if ($this->step->type === \App\Installer\StepType::Services)
+        @if ($this->workspace === null)
+            <p class="mt-6 rounded-lg border border-zinc-200 p-4 text-sm dark:border-zinc-800">
+                No workspace is mounted, so the installer can't install the services.
+                Start it again with <code>lpod installer IMAGE --workspace PATH</code>.
+            </p>
+        @else
+            <dl class="mt-6 grid grid-cols-[auto_1fr] gap-x-4 gap-y-1 text-sm">
+                <dt class="text-zinc-500">App</dt>
+                <dd>{{ $this->workspace['name'] }} ({{ $this->workspace['url'] }})</dd>
+                <dt class="text-zinc-500">Folder</dt>
+                <dd><code>{{ $this->workspace['path'] }}</code></dd>
+                <dt class="text-zinc-500">Presets</dt>
+                <dd>{{ implode(', ', $this->workspace['presets']) }}</dd>
+            </dl>
+
+            @if ($this->serviceStates === [])
+                <button type="button" wire:click="installServices" wire:loading.attr="disabled"
+                    class="mt-6 rounded-lg bg-zinc-900 px-4 py-2 text-white disabled:opacity-40 dark:bg-white dark:text-zinc-900">
+                    <span wire:loading.remove wire:target="installServices">Install and start</span>
+                    <span wire:loading wire:target="installServices">Installing…</span>
+                </button>
+            @else
+                <ul class="mt-6 space-y-2" @unless ($this->canContinue) wire:poll.3s="refreshServices" @endunless>
+                    @foreach ($this->serviceStates as $service => $state)
+                        <li wire:key="service-{{ $service }}" class="flex justify-between gap-4 rounded-lg border border-zinc-200 px-4 py-2 text-sm dark:border-zinc-800">
+                            <code>{{ $service }}</code>
+                            <span @class([
+                                'text-green-600' => $state === 'active',
+                                'text-red-600' => $state === 'failed',
+                                'text-zinc-500' => ! in_array($state, ['active', 'failed'], true),
+                            ])>{{ match ($state) {
+                                'active' => 'Running',
+                                'activating' => 'Starting…',
+                                'inactive' => 'Waiting…',
+                                'failed' => 'Failed',
+                                default => ucfirst($state),
+                            } }}</span>
+                        </li>
+                    @endforeach
+                </ul>
+
+                @if (in_array('failed', $this->serviceStates, true))
+                    <p class="mt-4 text-red-700 dark:text-red-300">
+                        A service failed to start. See why with <code>journalctl --user -u SERVICE</code> on the host,
+                        fix it, then try again.
+                    </p>
+
+                    <button type="button" wire:click="installServices" wire:loading.attr="disabled"
+                        class="mt-4 rounded-lg bg-zinc-900 px-4 py-2 text-white disabled:opacity-40 dark:bg-white dark:text-zinc-900">
+                        Try again
+                    </button>
+                @endif
+            @endif
+        @endif
+
+        @error('services')
+            <p class="mt-4 text-red-700 dark:text-red-300">{{ $message }}</p>
+        @enderror
+    @endif
+
     <nav class="mt-10 flex justify-between">
         <button type="button" wire:click="previous" @disabled($current === 0)
             class="rounded-lg px-4 py-2 text-zinc-700 disabled:opacity-40 dark:text-zinc-300">

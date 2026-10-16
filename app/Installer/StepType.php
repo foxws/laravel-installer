@@ -22,4 +22,10 @@ enum StepType: string
      * creating the admin account or running a seeder.
      */
     case Command = 'command';
+
+    /**
+     * Renders the app's presets into the workspace with foxws/laravel-podman,
+     * installs them as Quadlets and starts them.
+     */
+    case Services = 'services';
 }
