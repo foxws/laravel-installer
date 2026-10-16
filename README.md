@@ -55,7 +55,7 @@ A `command` step asks for its inputs, then runs a command in the app's container
     - { name: email, label: Email, type: email, rules: required|email }
     - { name: password, label: Password, type: password, rules: required|min:12 }
   run:
-    container: systemd-stry
+    container: systemd-my-project
     command: [php, artisan, users:create, --super-admin, --no-interaction, "--name={name}", "--email={email}"]
     stdin: "{password}"
     skip_if: [php, artisan, users:exists, --super-admin]
@@ -64,7 +64,7 @@ A `command` step asks for its inputs, then runs a command in the app's container
   type: command
   file: seed.md
   run:
-    container: systemd-stry
+    container: systemd-my-project
     command: [php, artisan, db:seed, --class=InstallerSeeder, --force]
     env:
       ADMIN_PASSWORD: "{password}"
@@ -133,8 +133,8 @@ Without `INSTALLER_HOST` it serves plain HTTP, which is only meant for `127.0.0.
 podman run --rm --pull=newer -p 127.0.0.1:8085:8085 \
     --userns=keep-id \
     -v "$XDG_RUNTIME_DIR/podman/podman.sock:/run/podman/podman.sock" \
-    -v "$HOME/stry:/workspace" -e INSTALLER_WORKSPACE=/workspace \
-    -e PODMAN_BASE_PATH=/workspace -e PODMAN_WORKING_PATH="$HOME/stry" \
+    -v "$HOME/my-project:/workspace" -e INSTALLER_WORKSPACE=/workspace \
+    -e PODMAN_BASE_PATH=/workspace -e PODMAN_WORKING_PATH="$HOME/my-project" \
     -e PODMAN_QUADLET_UID="$(id -u)" -e PODMAN_QUADLET_GID="$(id -g)" \
     -v "$HOME/.config/containers/systemd:/run/installer/quadlets" \
     -v "$HOME/.config/systemd/user:/run/installer/units" \
