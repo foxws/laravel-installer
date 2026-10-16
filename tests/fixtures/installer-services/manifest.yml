@@ -1,0 +1,10 @@
+name: Demo
+
+steps:
+  - id: services
+    type: services
+    file: services.md
+    presets: [production]
+
+  - id: finish
+    file: finish.md

@@ -92,6 +92,7 @@ readonly class Manifest
             html: $rendered->getContent(),
             inputs: $inputs,
             run: $type === StepType::Command ? static::run($file, $step, $inputs) : null,
+            presets: $type === StepType::Services ? static::presets($file, $step) : [],
         );
     }
 
@@ -162,6 +163,21 @@ readonly class Manifest
         }
 
         return $commandRun;
+    }
+
+    /**
+     * @param  array<string, mixed>  $step
+     * @return list<string>
+     */
+    protected static function presets(string $file, array $step): array
+    {
+        $presets = $step['presets'] ?? [];
+
+        if (! static::isArgumentList($presets, allowEmpty: true)) {
+            throw InvalidManifestException::invalid($file, "the \"presets\" of step \"{$step['id']}\" must be a list of preset names.");
+        }
+
+        return $presets;
     }
 
     protected static function isArgumentList(mixed $value, bool $allowEmpty = false): bool

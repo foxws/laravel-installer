@@ -88,7 +88,8 @@ jobs:
       - name: Smoke test HTTPS
         if: github.event_name == 'pull_request'
         run: |
-          docker run -d --name installer-https -p 127.0.0.1:8443:8085 \
+          # As "lpod installer" does with "--userns=keep-id": a non-root UID...
+          docker run -d --name installer-https -p 127.0.0.1:8443:8085 --user 1000:1000 \
               -e INSTALLER_HOST=127.0.0.1 -e INSTALLER_PUBLISHED_PORT=8443 \
               "${{ fromJSON(steps.meta.outputs.json).tags[0] }}"
 

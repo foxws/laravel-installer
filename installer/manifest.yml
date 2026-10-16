@@ -10,5 +10,12 @@ steps:
     type: requirements
     file: requirements.md
 
+  # Renders the app's presets into its folder, installs and starts them. Needs
+  # "lpod installer IMAGE --workspace PATH".
+  # - id: services
+  #   type: services
+  #   file: services.md
+  #   presets: [production]
+
   - id: finish
     file: finish.md

@@ -42,6 +42,7 @@ trait InteractsWithSteps
             StepType::Content => true,
             StepType::Requirements => $this->passesRequirements(),
             StepType::Command => $this->hasCompleted($this->step),
+            StepType::Services => $this->servicesAreRunning(),
         };
     }
 
@@ -65,6 +66,6 @@ trait InteractsWithSteps
     {
         $this->resetCommand();
 
-        unset($this->step, $this->canContinue);
+        unset($this->step, $this->canContinue, $this->workspace, $this->serviceStates);
     }
 }

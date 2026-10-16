@@ -38,7 +38,7 @@ steps:
 | ------ | ---------------------------------------------------------------------------- |
 | `id`   | A unique id for the step. It's also the title when the Markdown doesn't set one |
 | `file` | The Markdown file next to the manifest. Its front matter can set a `title`   |
-| `type` | `content` (default), `requirements`, which shows the host checks, or `command` |
+| `type` | `content` (default), `requirements`, which shows the host checks, `services` or `command` |
 
 Raw HTML in the Markdown is stripped. See [`installer/`](installer) for the example.
 
@@ -77,6 +77,23 @@ A `command` step asks for its inputs, then runs a command in the app's container
 - `rules` are Laravel validation rules, `required` by default. `type` is `text` (default), `email` or `password`.
 - The installer only continues once the command succeeded.
 
+### Services steps
+
+A `services` step renders the app's presets with [foxws/laravel-podman](https://github.com/foxws/laravel-podman), installs them as Quadlets and starts them:
+
+```yaml
+- id: services
+  type: services
+  file: services.md
+  presets: [production, proxy]
+```
+
+- The presets are rendered into the app's folder on the host, the workspace (see [Installing services](#installing-services)). Its `containers/stubs` and `config/podman.php` apply, so published and custom presets work as they do with `php artisan podman:setup`.
+- The app's `.env` decides what's rendered, but only its `APP_NAME`, `APP_URL`, `APP_ENV` and `PODMAN_*` values are read. Secrets such as `APP_KEY` never reach the installer.
+- Without `presets`, the app's `PODMAN_DEFAULT_PRESETS` are installed. List them in the step, since the package's own defaults are meant for development.
+- Each unit of a `.quadlets` file is written to `~/.config/containers/systemd`, as `podman quadlet install` does. Sockets and timers go to `~/.config/systemd/user` and are enabled. Then systemd reloads and starts the containers, and the installer shows their state until they all run.
+- Running it again renders and installs the services again, so it's safe to retry after fixing a failed service.
+
 ## The image
 
 `ghcr.io/foxws/laravel-installer` runs the installer with FrankenPHP on port 8085. The `edge` tag follows `main`, and releases get `1`, `1.2` and `1.2.3` tags. The image keeps no data and needs no `.env`.
@@ -106,7 +123,28 @@ podman run --rm --pull=newer -p 192.168.1.100:8085:8085 \
 
 With `INSTALLER_HOST`, the installer serves HTTPS and prints `https://192.168.1.100:8085/?token=…`. A hostname works too, such as `INSTALLER_HOST=server.lan`. The certificate comes from Caddy's internal CA, which your browser doesn't know, so it warns once; the connection is encrypted all the same. When you publish another port, such as `-p 192.168.1.100:9000:8085`, pass it as `INSTALLER_PUBLISHED_PORT=9000` so the link matches.
 
-Without `INSTALLER_HOST` it serves plain HTTP, which is only meant for `127.0.0.1` and SSH tunnels. Inside the container it runs as root, which rootless Podman maps to your own user, the owner of the socket. `label=disable` lets it use the socket on SELinux hosts. Run `systemctl --user enable --now podman.socket` once if the socket doesn't exist.
+Without `INSTALLER_HOST` it serves plain HTTP, which is only meant for `127.0.0.1` and SSH tunnels. Without `--userns=keep-id`, it runs as root inside the container, which rootless Podman maps to your own user, the owner of the socket. `label=disable` lets it use the socket on SELinux hosts. Run `systemctl --user enable --now podman.socket` once if the socket doesn't exist.
+
+### Installing services
+
+`services` steps need the app's folder (the workspace), the user's Quadlet and systemd folders, and the user's D-Bus session bus, to reach systemd. `--userns=keep-id` runs the installer as your own UID, so systemd accepts it and the files it writes are yours:
+
+```bash
+podman run --rm --pull=newer -p 127.0.0.1:8085:8085 \
+    --userns=keep-id \
+    -v "$XDG_RUNTIME_DIR/podman/podman.sock:/run/podman/podman.sock" \
+    -v "$HOME/stry:/workspace" -e INSTALLER_WORKSPACE=/workspace \
+    -e PODMAN_BASE_PATH=/workspace -e PODMAN_WORKING_PATH="$HOME/stry" \
+    -e PODMAN_QUADLET_UID="$(id -u)" -e PODMAN_QUADLET_GID="$(id -g)" \
+    -v "$HOME/.config/containers/systemd:/run/installer/quadlets" \
+    -v "$HOME/.config/systemd/user:/run/installer/units" \
+    -v "$XDG_RUNTIME_DIR/bus:/run/installer/bus" \
+    -e DBUS_SESSION_BUS_ADDRESS=unix:path=/run/installer/bus \
+    --security-opt label=disable \
+    ghcr.io/foxws/laravel-installer:edge
+```
+
+`PODMAN_WORKING_PATH` is the workspace's path on the host, which is written into the rendered units. The app's `.env` is read from the workspace, or from `INSTALLER_ENV_FILE`. `lpod installer IMAGE --workspace PATH` sets all of this up for you.
 
 ### With lpod
 

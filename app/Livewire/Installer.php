@@ -4,6 +4,7 @@ namespace App\Livewire;
 
 use App\Livewire\Concerns\InteractsWithCommands;
 use App\Livewire\Concerns\InteractsWithRequirements;
+use App\Livewire\Concerns\InteractsWithServices;
 use App\Livewire\Concerns\InteractsWithSteps;
 use Illuminate\Contracts\View\View;
 use Livewire\Component;
@@ -12,6 +13,7 @@ class Installer extends Component
 {
     use InteractsWithCommands;
     use InteractsWithRequirements;
+    use InteractsWithServices;
     use InteractsWithSteps;
 
     public function render(): View

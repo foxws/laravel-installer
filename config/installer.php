@@ -42,4 +42,39 @@ return [
 
     'command_timeout' => (int) env('INSTALLER_COMMAND_TIMEOUT', 300),
 
+    /*
+    |--------------------------------------------------------------------------
+    | Workspace
+    |--------------------------------------------------------------------------
+    |
+    | The app's folder on the host, mounted into the installer, and its ".env"
+    | file. Services steps render the app's presets into it with
+    | foxws/laravel-podman. Only "APP_NAME", "APP_URL", "APP_ENV" and the
+    | "PODMAN_*" values are read from the ".env" file. The installer's own
+    | "PODMAN_*" environment, set by "lpod installer", takes precedence.
+    |
+    */
+
+    'workspace' => env('INSTALLER_WORKSPACE'),
+
+    'env_file' => env('INSTALLER_ENV_FILE'),
+
+    /*
+    |--------------------------------------------------------------------------
+    | Systemd
+    |--------------------------------------------------------------------------
+    |
+    | Where the rendered units are installed: the host user's Quadlet folder
+    | ("~/.config/containers/systemd") and systemd user folder
+    | ("~/.config/systemd/user"), mounted into the installer. Systemd itself
+    | is reached through the user's D-Bus session bus.
+    |
+    */
+
+    'quadlet_path' => env('INSTALLER_QUADLET_PATH', '/run/installer/quadlets'),
+
+    'unit_path' => env('INSTALLER_UNIT_PATH', '/run/installer/units'),
+
+    'dbus_send' => env('INSTALLER_DBUS_SEND', 'dbus-send'),
+
 ];
