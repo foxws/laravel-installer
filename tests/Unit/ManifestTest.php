@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 use App\Installer\InvalidManifestException;
 use App\Installer\Manifest;
 use App\Installer\StepType;

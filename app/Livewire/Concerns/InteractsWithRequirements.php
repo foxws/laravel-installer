@@ -1,10 +1,13 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Livewire\Concerns;
 
 use App\Installer\DoctorReport;
 use App\Installer\Podman;
 use App\Installer\PodmanInfoReport;
+use Illuminate\Support\Facades\Config;
 use Livewire\Attributes\Computed;
 
 /**
@@ -17,7 +20,7 @@ trait InteractsWithRequirements
     #[Computed]
     public function report(): DoctorReport
     {
-        return DoctorReport::fromFile(config('installer.doctor_report'))
+        return DoctorReport::fromFile(Config::string('installer.doctor_report'))
             ?? PodmanInfoReport::fromInfo(app(Podman::class)->info());
     }
 

@@ -1,8 +1,11 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Installer;
 
 use Illuminate\Contracts\Process\ProcessResult;
+use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Process;
 
 /**
@@ -19,7 +22,7 @@ class Podman
      */
     public function info(): ?array
     {
-        $result = Process::timeout(30)->run([config('installer.podman'), 'info', '--format', 'json']);
+        $result = Process::timeout(30)->run([Config::string('installer.podman'), 'info', '--format', 'json']);
 
         if (! $result->successful()) {
             return null;
@@ -40,7 +43,7 @@ class Podman
      */
     public function exec(string $container, array $command, ?string $stdin = null, array $env = []): ProcessResult
     {
-        $arguments = [config('installer.podman'), 'exec'];
+        $arguments = [Config::string('installer.podman'), 'exec'];
 
         if ($stdin !== null) {
             $arguments[] = '--interactive';
@@ -50,7 +53,7 @@ class Podman
             array_push($arguments, '--env', $name);
         }
 
-        $process = Process::timeout(config('installer.command_timeout'))->env($env);
+        $process = Process::timeout(Config::integer('installer.command_timeout'))->env($env);
 
         if ($stdin !== null) {
             $process = $process->input($stdin);

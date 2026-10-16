@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 use App\Installer\Manifest;
 use App\Livewire\Installer;
 use Illuminate\Process\PendingProcess;
