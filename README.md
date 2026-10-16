@@ -133,8 +133,7 @@ Without `INSTALLER_HOST` it serves plain HTTP, which is only meant for `127.0.0.
 podman run --rm --pull=newer -p 127.0.0.1:8085:8085 \
     --userns=keep-id \
     -v "$XDG_RUNTIME_DIR/podman/podman.sock:/run/podman/podman.sock" \
-    -v "$HOME/my-project:/workspace" -e INSTALLER_WORKSPACE=/workspace \
-    -e PODMAN_BASE_PATH=/workspace -e PODMAN_WORKING_PATH="$HOME/my-project" \
+    -v "$HOME/my-project:/workspace" -e PODMAN_WORKING_PATH="$HOME/my-project" \
     -e PODMAN_QUADLET_UID="$(id -u)" -e PODMAN_QUADLET_GID="$(id -g)" \
     -v "$HOME/.config/containers/systemd:/run/installer/quadlets" \
     -v "$HOME/.config/systemd/user:/run/installer/units" \
@@ -144,7 +143,7 @@ podman run --rm --pull=newer -p 127.0.0.1:8085:8085 \
     ghcr.io/foxws/laravel-installer:edge
 ```
 
-`PODMAN_WORKING_PATH` is the workspace's path on the host, which is written into the rendered units. The app's `.env` is read from the workspace, or from `INSTALLER_ENV_FILE`. `lpod installer IMAGE --workspace PATH` sets all of this up for you.
+The workspace is mounted at `/workspace`, and the app's `.env` is read from `/workspace/.env`. `PODMAN_WORKING_PATH` is the workspace's path on the host, which is written into the rendered units. To read another `.env`, mount it and point `INSTALLER_ENV_FILE` to it, either as an absolute path or relative to the workspace (such as `.env.production`). For another mount point, set `INSTALLER_WORKSPACE`. `lpod installer IMAGE --workspace PATH` sets all of this up for you.
 
 ### With lpod
 

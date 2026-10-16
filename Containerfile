@@ -76,9 +76,6 @@ ENV INSTALLER_PODMAN=podman-remote
 ENV CONTAINER_HOST=unix:///run/podman/podman.sock
 ENV INSTALLER_DOCTOR_REPORT=/run/installer/doctor.json
 
-ENV INSTALLER_QUADLET_PATH=/run/installer/quadlets
-ENV INSTALLER_UNIT_PATH=/run/installer/units
-
 EXPOSE 8085
 
 ENTRYPOINT ["/usr/local/bin/installer"]

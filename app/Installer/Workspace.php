@@ -7,6 +7,7 @@ namespace App\Installer;
 use App\Installer\Concerns\InteractsWithPodman;
 use Dotenv\Dotenv;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Str;
 
 /**
@@ -25,12 +26,15 @@ class Workspace
     public static function fromConfig(): self
     {
         $path = config('installer.workspace');
-        $path = is_string($path) && $path !== '' ? Str::rtrim($path, '/') : null;
 
-        $envFile = config('installer.env_file');
-        $envFile = is_string($envFile) && $envFile !== '' ? $envFile : ($path !== null ? "{$path}/.env" : null);
+        if (! is_string($path) || $path === '') {
+            return new self(null, null);
+        }
 
-        return new self($path, $envFile);
+        $path = Str::rtrim($path, '/');
+        $envFile = Config::string('installer.env_file');
+
+        return new self($path, Str::startsWith($envFile, '/') ? $envFile : "{$path}/{$envFile}");
     }
 
     public function isAvailable(): bool

@@ -49,17 +49,18 @@ return [
     | Workspace
     |--------------------------------------------------------------------------
     |
-    | The app's folder on the host, mounted into the installer, and its ".env"
-    | file. Services steps render the app's presets into it with
+    | The app's folder on the host, mounted into the installer at "/workspace",
+    | and its ".env" file, relative to the workspace unless it's an absolute
+    | path. Services steps render the app's presets into it with
     | foxws/laravel-podman. Only "APP_NAME", "APP_URL", "APP_ENV" and the
     | "PODMAN_*" values are read from the ".env" file. The installer's own
     | "PODMAN_*" environment, set by "lpod installer", takes precedence.
     |
     */
 
-    'workspace' => env('INSTALLER_WORKSPACE'),
+    'workspace' => env('INSTALLER_WORKSPACE', '/workspace'),
 
-    'env_file' => env('INSTALLER_ENV_FILE'),
+    'env_file' => env('INSTALLER_ENV_FILE', '.env'),
 
     /*
     |--------------------------------------------------------------------------

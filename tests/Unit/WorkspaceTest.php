@@ -73,3 +73,19 @@ it('needs presets to render', function () {
 
     $this->workspace->render();
 })->throws(ServicesException::class, 'no presets');
+
+it('reads the workspace from /workspace and its .env file by default', function () {
+    $workspace = Workspace::fromConfig();
+
+    expect($workspace->path)->toBe('/workspace')
+        ->and($workspace->envFile)->toBe('/workspace/.env');
+});
+
+it('reads another env file, relative to the workspace or absolute', function (string $envFile, string $expected) {
+    config(['installer.workspace' => '/srv/app/', 'installer.env_file' => $envFile]);
+
+    expect(Workspace::fromConfig()->envFile)->toBe($expected);
+})->with([
+    ['.env.production', '/srv/app/.env.production'],
+    ['/run/installer/app.env', '/run/installer/app.env'],
+]);
