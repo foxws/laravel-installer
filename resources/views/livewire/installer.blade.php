@@ -157,6 +157,10 @@
                 Start it again with the app's folder mounted at <code>/workspace</code>.
             </p>
         @else
+            @if ($this->requiredSecrets === [] && ! $errors->has('secrets'))
+                <p class="mt-6 font-medium text-green-700 dark:text-green-400">✓ These services don't use any Podman secrets.</p>
+            @endif
+
             <form wire:submit="createSecrets" class="mt-6 space-y-3">
                 @foreach ($this->requiredSecrets as $required)
                     <div wire:key="secret-{{ $required['secret']->name }}" class="rounded-lg border border-zinc-200 p-4 text-sm dark:border-zinc-800">

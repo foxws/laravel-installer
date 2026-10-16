@@ -105,6 +105,17 @@ it('keeps the secrets that exist, unless asked to replace them', function () {
     Process::assertRanTimes(fn (PendingProcess $process) => ($process->command[2] ?? null) === 'create', 3);
 });
 
+it('continues when the services use no secrets', function () {
+    File::put("{$this->root}/workspace/containers/stubs/demo/quadlets/app.quadlets", "# FileName={{application}}\n[Container]\nImage=acme\n");
+    fakePodmanSecrets();
+
+    Livewire::test(Installer::class)
+        ->assertSee("These services don't use any Podman secrets.", false)
+        ->assertDontSee('Create secrets')
+        ->call('next')
+        ->assertSet('current', 1);
+});
+
 it('shows what podman said when it fails', function () {
     Process::fake(['*' => Process::result(errorOutput: 'Error: cannot connect to Podman', exitCode: 125)]);
 
