@@ -1,0 +1,11 @@
+name: Demo
+
+steps:
+  - id: requirements
+    type: requirements
+    file: requirements.md
+
+  - id: services
+    type: services
+    file: services.md
+    presets: [production]

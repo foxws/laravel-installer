@@ -60,6 +60,13 @@ return [
 
     'workspace' => env('INSTALLER_WORKSPACE', '/workspace'),
 
+    /*
+    | The requirements stop when the app is installed on the host already.
+    | Set this to continue anyway, such as after a run that stopped halfway.
+    */
+
+    'allow_existing' => (bool) env('INSTALLER_ALLOW_EXISTING', false),
+
     'env_file' => env('INSTALLER_ENV_FILE', '.env'),
 
     /*

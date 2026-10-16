@@ -77,6 +77,12 @@ A `command` step asks for its inputs, then runs a command in the app's container
 - `rules` are Laravel validation rules, `required` by default. `type` is `text` (default), `email` or `password`.
 - The installer only continues once the command succeeded.
 
+### Requirements steps
+
+A `requirements` step checks the host through the Podman socket: the Podman version, cgroups v2 and subordinate IDs. Linger and the ports show as unknown, with how to check them on the host. The installer only continues once none of the checks fail.
+
+With a workspace mounted, it also checks whether the app is installed already, by looking for its `{application}.container` unit. The installer is meant for a first install: on a running app it would reinstall and restart the services. When an earlier run stopped halfway, start the installer with `-e INSTALLER_ALLOW_EXISTING=true` to continue anyway. Once the installer installed the services itself, going back to the requirements doesn't stop it.
+
 ### Secrets steps
 
 The containers can't start before the Podman secrets they use exist, so put a `secrets` step before the `services` step. It renders the same presets, lists every `Secret=` of their units, and creates the missing ones with `podman secret create` through the socket, without lpod:
