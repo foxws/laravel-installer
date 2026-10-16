@@ -47,7 +47,7 @@ class QuadletInstaller
 
                 $services[] = $unit->serviceName();
 
-                if ($unit->isRunnable()) {
+                if ($unit->type->isRunnable()) {
                     $start[] = $unit->serviceName();
                 }
             }
