@@ -23,6 +23,11 @@ class ServicesException extends RuntimeException
         return new self("The rendered services can't be installed: {$error}");
     }
 
+    public static function wake(string $address, string $error): self
+    {
+        return new self("The installer couldn't wake the app on {$address}: {$error}");
+    }
+
     public static function systemd(string $action, string $error): self
     {
         return new self("Systemd couldn't {$action}: {$error}");
