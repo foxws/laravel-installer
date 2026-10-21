@@ -57,6 +57,7 @@ it('stops at the requirements while the host has problems', function () {
     Livewire::test(Installer::class)
         ->call('next')
         ->assertSee('no subordinate user and group IDs')
+        ->assertSeeHtml('alert-error')
         ->assertSee('Fix the problems above on the host')
         ->call('next')
         ->assertSet('current', 1);

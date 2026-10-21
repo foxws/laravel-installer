@@ -6,11 +6,13 @@
 
         <title>{{ $title ?? config('app.name') }}</title>
 
+        @fonts
+
         @vite(['resources/css/app.css', 'resources/js/app.js'])
 
         @livewireStyles
     </head>
-    <body class="bg-white text-zinc-900 antialiased dark:bg-zinc-950 dark:text-zinc-100">
+    <body class="min-h-screen bg-base-200 text-base-content antialiased">
         {{ $slot }}
 
         @livewireScripts

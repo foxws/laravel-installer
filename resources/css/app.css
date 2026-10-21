@@ -1,14 +1,18 @@
-@import 'tailwindcss';
+@import 'tailwindcss' source(none);
 
+@source '../views';
+@source '../js';
 @source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
 @source '../../storage/framework/views/*.php';
+
+@plugin 'daisyui' {
+    themes: light --default, dark --prefersdark;
+}
 
 @theme {
     --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
         'Segoe UI Symbol', 'Noto Color Emoji';
 }
-
-@custom-variant dark (&:where(.dark, .dark *), @media (prefers-color-scheme: dark));
 
 @layer components {
     .step-content {
@@ -16,11 +20,11 @@
 
         & h2 { @apply mt-8 text-xl font-semibold; }
         & h3 { @apply mt-6 text-lg font-semibold; }
-        & a { @apply underline underline-offset-2; }
+        & a { @apply link; }
         & ul { @apply list-disc space-y-1 pl-6; }
         & ol { @apply list-decimal space-y-1 pl-6; }
-        & code { @apply rounded bg-zinc-100 px-1 py-0.5 text-sm dark:bg-zinc-900; }
-        & pre { @apply overflow-x-auto rounded bg-zinc-100 p-3 text-sm dark:bg-zinc-900; }
+        & code { @apply rounded bg-base-200 px-1 py-0.5 text-sm; }
+        & pre { @apply overflow-x-auto rounded-box bg-base-200 p-3 text-sm; }
         & pre code { @apply bg-transparent p-0; }
     }
 }
