@@ -1,3 +1,5 @@
-<div {{ $attributes->class(['mockup-code text-sm']) }}>
-    <pre><code>{{ $slot }}</code></pre>
+<div {{ $attributes->class(['mockup-code w-full text-sm']) }}>
+    @foreach(explode("\n", trim($slot->toHtml(), "\n")) as $line)
+        <pre><code>{!! $line !!}</code></pre>
+    @endforeach
 </div>

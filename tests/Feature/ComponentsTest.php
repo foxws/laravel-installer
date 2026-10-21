@@ -26,3 +26,10 @@ it('renders a plain button without loading states', function () {
     $view->assertSee('disabled', false);
     $view->assertDontSee('wire:loading', false);
 });
+
+it('puts each line of code in its own pre, still escaped', function () {
+    $view = $this->blade('<x-code>{{ $output }}</x-code>', ['output' => "echo '<b>'\nsudo sysctl --system\n"]);
+
+    $view->assertSeeInOrder(['<pre><code>echo &#039;&lt;b&gt;&#039;</code></pre>', '<pre><code>sudo sysctl --system</code></pre>'], false);
+    $view->assertDontSee('<b>', false);
+});
