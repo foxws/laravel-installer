@@ -4,8 +4,10 @@
 .git
 .github
 .claude
+.mcp.json
 .phpunit.cache
 AGENTS.md
+boost.json
 CLAUDE.md
 node_modules
 public/build
@@ -15,5 +17,6 @@ storage/framework/cache/data/*
 storage/framework/sessions/*
 storage/framework/views/*
 storage/logs/*
+skills-lock.json
 tests
 vendor
