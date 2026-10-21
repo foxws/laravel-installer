@@ -3,6 +3,7 @@
 !.env.example
 .git
 .github
+.agents
 .claude
 .mcp.json
 .phpunit.cache
