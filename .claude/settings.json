@@ -1,0 +1,15 @@
+{
+    "enableAllProjectMcpServers": true,
+    "enabledPlugins": {
+        "laravel-lsp@laravel": true,
+        "laravel@laravel": true
+    },
+    "extraKnownMarketplaces": {
+        "laravel": {
+            "source": {
+                "repo": "laravel/agent-skills",
+                "source": "github"
+            }
+        }
+    }
+}
