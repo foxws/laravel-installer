@@ -90,3 +90,28 @@ it('stops at the requirements when the podman socket cannot be reached', functio
 it('does not let the browser skip steps', function () {
     Livewire::test(Installer::class)->set('current', 2);
 })->throws(CannotUpdateLockedPropertyException::class);
+
+it('skips a step that stops the installer when skipping is allowed', function () {
+    config(['installer.allow_skipping' => true]);
+    fakePodmanInfo(['host.idMappings.uidmap' => [['container_id' => 0, 'host_id' => 1000, 'size' => 1]]]);
+
+    Livewire::test(Installer::class)
+        ->assertSee('Steps can be skipped')
+        ->call('next')
+        ->assertSee('Skip step')
+        ->call('next')
+        ->assertSet('current', 1)
+        ->call('skip')
+        ->assertSet('current', 2);
+});
+
+it("doesn't skip steps unless skipping is allowed", function () {
+    fakePodmanInfo(['host.idMappings.uidmap' => [['container_id' => 0, 'host_id' => 1000, 'size' => 1]]]);
+
+    Livewire::test(Installer::class)
+        ->assertDontSee('Steps can be skipped')
+        ->call('next')
+        ->assertDontSee('Skip step')
+        ->call('skip')
+        ->assertSet('current', 1);
+});

@@ -7,6 +7,7 @@ namespace App\Livewire\Concerns;
 use App\Installer\Manifest;
 use App\Installer\Step;
 use App\Installer\StepType;
+use Illuminate\Support\Facades\Config;
 use Livewire\Attributes\Computed;
 use Livewire\Attributes\Locked;
 
@@ -49,19 +50,46 @@ trait InteractsWithSteps
         };
     }
 
+    /**
+     * Whether steps may be skipped, for testing an installer.
+     */
+    #[Computed]
+    public function canSkip(): bool
+    {
+        return Config::boolean('installer.allow_skipping');
+    }
+
     public function next(): void
     {
-        if (! $this->canContinue || $this->current >= count($this->manifest->steps) - 1) {
+        if (! $this->canContinue) {
             return;
         }
 
-        $this->current++;
-        $this->resetStep();
+        $this->moveOn();
+    }
+
+    public function skip(): void
+    {
+        if (! $this->canSkip) {
+            return;
+        }
+
+        $this->moveOn();
     }
 
     public function previous(): void
     {
         $this->current = max(0, $this->current - 1);
+        $this->resetStep();
+    }
+
+    protected function moveOn(): void
+    {
+        if ($this->current >= count($this->manifest->steps) - 1) {
+            return;
+        }
+
+        $this->current++;
         $this->resetStep();
     }
 

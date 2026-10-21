@@ -5,6 +5,12 @@
         <x-steps class="mt-4" :steps="array_column($this->manifest->steps, 'title')" :current="$current" />
     </header>
 
+    @if($this->canSkip)
+        <x-alert type="warning" class="mb-4">
+            Steps can be skipped, for testing the installer. Don't use this for a real install.
+        </x-alert>
+    @endif
+
     <x-card>
         <h1 class="card-title text-2xl">{{ $this->step->title }}</h1>
 
@@ -184,9 +190,17 @@
             </x-button>
 
             @if($current < count($this->manifest->steps) - 1)
-                <x-button wire:click="next" variant="primary" :disabled="! $this->canContinue">
-                    Continue
-                </x-button>
+                <div class="flex gap-2">
+                    @if($this->canSkip && ! $this->canContinue)
+                        <x-button wire:click="skip" variant="ghost">
+                            Skip step
+                        </x-button>
+                    @endif
+
+                    <x-button wire:click="next" variant="primary" :disabled="! $this->canContinue">
+                        Continue
+                    </x-button>
+                </div>
             @endif
         </nav>
     </x-card>

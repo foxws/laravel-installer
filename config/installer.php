@@ -98,6 +98,19 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Allow Skipping
+    |--------------------------------------------------------------------------
+    |
+    | For testing an installer, such as its steps' content and styling. Each
+    | step then has a "Skip step" button while it doesn't let the installer
+    | continue, such as after failed requirements or a failed command.
+    |
+    */
+
+    'allow_skipping' => (bool) env('INSTALLER_ALLOW_SKIPPING', false),
+
+    /*
+    |--------------------------------------------------------------------------
     | Quadlet Path
     |--------------------------------------------------------------------------
     |

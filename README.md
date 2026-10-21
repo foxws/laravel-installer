@@ -83,6 +83,8 @@ A `requirements` step checks the host through the Podman socket: the Podman vers
 
 With a workspace mounted, it also checks whether the app is installed already, by looking for its `{application}.container` unit. The installer is meant for a first install: on a running app it would reinstall and restart the services. When an earlier run stopped halfway, start the installer with `-e INSTALLER_ALLOW_EXISTING=true` to continue anyway. Once the installer installed the services itself, going back to the requirements doesn't stop it.
 
+To test an installer, such as its steps' content and styling, start it with `-e INSTALLER_ALLOW_SKIPPING=true`. Each step then has a "Skip step" button while it doesn't let the installer continue, such as after failed requirements or a failed command. Don't use this for a real install: the later steps expect the earlier ones to be done.
+
 ### Secrets steps
 
 The containers can't start before the Podman secrets they use exist, so put a `secrets` step before the `services` step. It renders the same presets, lists every `Secret=` of their units, and creates the missing ones with `podman secret create` through the socket, without lpod:
