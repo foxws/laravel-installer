@@ -6,6 +6,8 @@
 .agents
 .claude
 .mcp.json
+# The example installer: the image asks for the app's repository instead
+installer
 .phpunit.cache
 AGENTS.md
 boost.json

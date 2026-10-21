@@ -59,6 +59,8 @@ jobs:
           push: ${{ github.event_name != 'pull_request' }}
           load: ${{ github.event_name == 'pull_request' }}
           tags: ${{ steps.meta.outputs.tags }}
+          build-args: |
+            INSTALLER_VERSION=${{ steps.meta.outputs.version }}
           labels: ${{ steps.meta.outputs.labels }}
           provenance: ${{ github.event_name != 'pull_request' }}
           sbom: ${{ github.event_name != 'pull_request' }}
@@ -66,7 +68,7 @@ jobs:
           cache-to: type=gha,mode=max
 
       # Starts the image and checks that it serves the installer only with the
-      # link it printed...
+      # link it printed, which then asks for the app's repository...
       - name: Smoke test
         if: github.event_name == 'pull_request'
         run: |
@@ -81,7 +83,7 @@ jobs:
           test "$(curl -s -o /dev/null -w '%{http_code}' http://127.0.0.1:8085/)" = 403
 
           LINK="$(docker logs installer 2>&1 | grep -o 'http://[^ ]*token=[A-Za-z0-9]*')"
-          curl -fsL -c jar -b jar "$LINK" | grep -q 'Example installer'
+          curl -fsL -c jar -b jar "$LINK" | grep -q 'Choose the app'
 
       # With a host, it serves HTTPS from Caddy's internal CA, also for an IP
       # address, for which clients send no server name...
@@ -102,7 +104,7 @@ jobs:
           test "$(curl -sk -o /dev/null -w '%{http_code}' https://127.0.0.1:8443/)" = 403
 
           LINK="$(docker logs installer-https 2>&1 | grep -o 'https://127.0.0.1:8443/?token=[A-Za-z0-9]*')"
-          curl -fskL -c jar-https -b jar-https "$LINK" | grep -q 'Example installer'
+          curl -fskL -c jar-https -b jar-https "$LINK" | grep -q 'Choose the app'
 
       # Lets users check that an image really comes from this repository:
       # gh attestation verify oci://ghcr.io/foxws/laravel-installer:1 --owner foxws

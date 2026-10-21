@@ -1,7 +1,9 @@
-# The installer image. Apps build their own installer on top of it, with their
-# "installer/" folder copied over the example one:
+# The installer image. On its own, it asks for an app's git repository and
+# clones the chosen branch, tag or commit into the workspace. Apps can also
+# build their own installer on top of it, with their "installer/" folder (and
+# whatever else they need) baked in, which skips that step:
 #
-#   FROM ghcr.io/foxws/laravel-installer:1
+#   FROM ghcr.io/foxws/laravel-installer:2
 #   COPY installer/ /app/installer/
 
 ARG FRANKENPHP_VERSION=1-php8.5
@@ -25,10 +27,11 @@ ENV TZ=UTC
 ENV LANG=C.UTF-8
 
 # The Podman client, which runs the steps' commands through the host's Podman
-# socket, mounted at /run/podman/podman.sock, and "dbus-send", which installs
-# and starts the services through the host user's systemd
+# socket, mounted at /run/podman/podman.sock, "dbus-send", which installs and
+# starts the services through the host user's systemd, and git, which fetches
+# the app
 RUN apt-get update \
-    && apt-get install -y --no-install-recommends dbus-bin podman-remote \
+    && apt-get install -y --no-install-recommends ca-certificates dbus-bin git podman-remote \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
@@ -71,6 +74,8 @@ ENV LOG_CHANNEL=stderr
 ENV SESSION_DRIVER=file
 ENV CACHE_STORE=file
 ENV QUEUE_CONNECTION=sync
+ARG INSTALLER_VERSION=dev
+ENV INSTALLER_VERSION=${INSTALLER_VERSION}
 ENV INSTALLER_PORT=8085
 ENV INSTALLER_PODMAN=podman-remote
 ENV PODMAN_BINARY=podman-remote
