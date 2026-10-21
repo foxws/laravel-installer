@@ -27,6 +27,26 @@ it('takes the title from the front matter, or else from the id', function () {
         ->and($manifest->steps[0]->html)->not->toContain('title:');
 });
 
+it('reads the version and links', function () {
+    $manifest = Manifest::fromPath(installerFolder([
+        'manifest.yml' => "name: App\nversion: 2\nlinks:\n  - { label: Help, url: 'https://example.com/docs' }\nsteps:\n  - { id: first, file: a.md }",
+        'a.md' => 'Body',
+    ]));
+
+    expect($manifest->version)->toBe('2')
+        ->and($manifest->links)->toBe([['label' => 'Help', 'url' => 'https://example.com/docs']]);
+});
+
+it('has no version or links unless the manifest sets them', function () {
+    $manifest = Manifest::fromPath(installerFolder([
+        'manifest.yml' => "name: App\nsteps:\n  - { id: first, file: a.md }",
+        'a.md' => 'Body',
+    ]));
+
+    expect($manifest->version)->toBeNull()
+        ->and($manifest->links)->toBe([]);
+});
+
 it('strips raw html from the steps', function () {
     $manifest = Manifest::fromPath(installerFolder([
         'manifest.yml' => "name: App\nsteps:\n  - { id: first, file: a.md }",
@@ -51,6 +71,8 @@ it('rejects invalid manifests', function (array $files, string $reason) {
     'command as a string' => [['manifest.yml' => "name: App\nsteps:\n  - { id: first, type: command, file: a.md, run: { container: app, command: 'php artisan x' } }", 'a.md' => ''], 'as a list of arguments'],
     'secret in arguments' => [['manifest.yml' => "name: App\nsteps:\n  - { id: first, type: command, file: a.md, inputs: [{ name: password, type: password }], run: { container: app, command: [x, '--password={password}'] } }", 'a.md' => ''], 'can only be passed through "stdin" or "env"'],
     'lower case env' => [['manifest.yml' => "name: App\nsteps:\n  - { id: first, type: command, file: a.md, run: { container: app, command: [x], env: { token: y } } }", 'a.md' => ''], 'must map upper case names'],
+    'link without url' => [['manifest.yml' => "name: App\nlinks:\n  - { label: Help }\nsteps:\n  - { id: first, file: a.md }", 'a.md' => ''], 'link 0 needs a "label" and a "url"'],
+    'javascript link' => [['manifest.yml' => "name: App\nlinks:\n  - { label: Help, url: 'javascript:alert(1)' }\nsteps:\n  - { id: first, file: a.md }", 'a.md' => ''], 'must start with http:// or https://'],
     'duplicate ids' => [['manifest.yml' => "name: App\nsteps:\n  - { id: first, file: a.md }\n  - { id: first, file: a.md }", 'a.md' => ''], 'first are used more than once'],
 ]);
 

@@ -31,7 +31,8 @@ it('shows the first step', function () {
         ->get('/')
         ->assertOk()
         ->assertSee('Example installer')
-        ->assertSee('This installer sets up the app');
+        ->assertSee('This installer sets up the app')
+        ->assertSee('<meta name="robots" content="noindex, nofollow">', false);
 });
 
 it('moves through the steps', function () {
@@ -57,6 +58,7 @@ it('stops at the requirements while the host has problems', function () {
     Livewire::test(Installer::class)
         ->call('next')
         ->assertSee('no subordinate user and group IDs')
+        ->assertSeeHtml('alert-error')
         ->assertSee('Fix the problems above on the host')
         ->call('next')
         ->assertSet('current', 1);
@@ -88,3 +90,39 @@ it('stops at the requirements when the podman socket cannot be reached', functio
 it('does not let the browser skip steps', function () {
     Livewire::test(Installer::class)->set('current', 2);
 })->throws(CannotUpdateLockedPropertyException::class);
+
+it('skips a step that stops the installer when skipping is allowed', function () {
+    config(['installer.allow_skipping' => true]);
+    fakePodmanInfo(['host.idMappings.uidmap' => [['container_id' => 0, 'host_id' => 1000, 'size' => 1]]]);
+
+    Livewire::test(Installer::class)
+        ->assertSee('Steps can be skipped')
+        ->call('next')
+        ->assertSee('Skip step')
+        ->call('next')
+        ->assertSet('current', 1)
+        ->call('skip')
+        ->assertSet('current', 2);
+});
+
+it("doesn't skip steps unless skipping is allowed", function () {
+    fakePodmanInfo(['host.idMappings.uidmap' => [['container_id' => 0, 'host_id' => 1000, 'size' => 1]]]);
+
+    Livewire::test(Installer::class)
+        ->assertDontSee('Steps can be skipped')
+        ->call('next')
+        ->assertDontSee('Skip step')
+        ->call('skip')
+        ->assertSet('current', 1);
+});
+
+it('shows the version and links in the header', function () {
+    config(['installer.path' => installerFolder([
+        'manifest.yml' => "name: Acme\nversion: '2.1'\nlinks:\n  - { label: Help, url: 'https://acme.test/docs' }\nsteps:\n  - { id: welcome, file: welcome.md }",
+        'welcome.md' => 'Hello',
+    ])]);
+
+    Livewire::test(Installer::class)
+        ->assertSee('2.1')
+        ->assertSeeHtml('<a href="https://acme.test/docs" target="_blank" rel="noopener noreferrer" class="btn btn-ghost btn-sm">Help</a>');
+});

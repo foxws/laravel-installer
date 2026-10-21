@@ -24,6 +24,11 @@ It supports rootless Podman with Quadlets today: from then on, systemd runs the 
 
 ```yaml
 name: Example
+version: '2.1'
+
+links:
+  - { label: Help, url: 'https://example.com/docs' }
+  - { label: Source, url: 'https://github.com/example/app' }
 
 steps:
   - id: welcome
@@ -39,6 +44,8 @@ steps:
 | `id`   | A unique id for the step. It's also the title when the Markdown doesn't set one |
 | `file` | The Markdown file next to the manifest. Its front matter can set a `title`   |
 | `type` | `content` (default), `requirements`, which shows the host checks, `secrets`, `services` or `command` |
+
+The optional `version` and `links` show in the header: the version the installer installs, and links to the app's help, source and such, which open in a new tab. Quote the version, so YAML doesn't read `2.10` as the number `2.1`. Links must start with `http://` or `https://`.
 
 Raw HTML in the Markdown is stripped. See [`installer/`](installer) for the example.
 
@@ -82,6 +89,8 @@ A `command` step asks for its inputs, then runs a command in the app's container
 A `requirements` step checks the host through the Podman socket: the Podman version, cgroups v2 and subordinate IDs. Linger and the ports show as unknown, with how to check them on the host. The installer only continues once none of the checks fail.
 
 With a workspace mounted, it also checks whether the app is installed already, by looking for its `{application}.container` unit. The installer is meant for a first install: on a running app it would reinstall and restart the services. When an earlier run stopped halfway, start the installer with `-e INSTALLER_ALLOW_EXISTING=true` to continue anyway. Once the installer installed the services itself, going back to the requirements doesn't stop it.
+
+To test an installer, such as its steps' content and styling, start it with `-e INSTALLER_ALLOW_SKIPPING=true`. Each step then has a "Skip step" button while it doesn't let the installer continue, such as after failed requirements or a failed command. Don't use this for a real install: the later steps expect the earlier ones to be done.
 
 ### Secrets steps
 

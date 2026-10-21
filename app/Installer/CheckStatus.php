@@ -10,4 +10,34 @@ enum CheckStatus: string
     case Warn = 'warn';
     case Fail = 'fail';
     case Unknown = 'unknown';
+
+    public function alertType(): string
+    {
+        return match ($this) {
+            self::Ok => 'success',
+            self::Warn => 'warning',
+            self::Fail => 'error',
+            self::Unknown => 'info',
+        };
+    }
+
+    public function label(): string
+    {
+        return match ($this) {
+            self::Ok => __('OK'),
+            self::Warn => __('Warning'),
+            self::Fail => __('Failed'),
+            self::Unknown => __('Unknown'),
+        };
+    }
+
+    public function symbol(): string
+    {
+        return match ($this) {
+            self::Ok => '✓',
+            self::Warn => '!',
+            self::Fail => '✗',
+            self::Unknown => '?',
+        };
+    }
 }

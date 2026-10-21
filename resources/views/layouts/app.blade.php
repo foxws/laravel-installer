@@ -4,13 +4,18 @@
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
+        <meta name="description" content="{{ $description ?? 'Install the app and its Podman services on this host.' }}">
+        <meta name="robots" content="noindex, nofollow">
+
         <title>{{ $title ?? config('app.name') }}</title>
+
+        @fonts
 
         @vite(['resources/css/app.css', 'resources/js/app.js'])
 
         @livewireStyles
     </head>
-    <body class="bg-white text-zinc-900 antialiased dark:bg-zinc-950 dark:text-zinc-100">
+    <body class="min-h-screen bg-base-200 text-base-content antialiased">
         {{ $slot }}
 
         @livewireScripts
