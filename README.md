@@ -24,6 +24,11 @@ It supports rootless Podman with Quadlets today: from then on, systemd runs the 
 
 ```yaml
 name: Example
+version: '2.1'
+
+links:
+  - { label: Help, url: 'https://example.com/docs' }
+  - { label: Source, url: 'https://github.com/example/app' }
 
 steps:
   - id: welcome
@@ -39,6 +44,8 @@ steps:
 | `id`   | A unique id for the step. It's also the title when the Markdown doesn't set one |
 | `file` | The Markdown file next to the manifest. Its front matter can set a `title`   |
 | `type` | `content` (default), `requirements`, which shows the host checks, `secrets`, `services` or `command` |
+
+The optional `version` and `links` show in the header: the version the installer installs, and links to the app's help, source and such, which open in a new tab. Quote the version, so YAML doesn't read `2.10` as the number `2.1`. Links must start with `http://` or `https://`.
 
 Raw HTML in the Markdown is stripped. See [`installer/`](installer) for the example.
 

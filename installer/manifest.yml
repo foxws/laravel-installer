@@ -2,6 +2,13 @@
 # and build your installer image from ghcr.io/foxws/laravel-installer.
 name: Example
 
+# Shown in the header: the version this installs, and links that open in a
+# new tab.
+# version: '1.0'
+# links:
+#   - { label: Help, url: 'https://example.com/docs' }
+#   - { label: Source, url: 'https://github.com/example/app' }
+
 steps:
   - id: welcome
     file: welcome.md

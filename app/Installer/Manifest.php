@@ -15,18 +15,22 @@ use Symfony\Component\Yaml\Exception\ParseException;
 use Symfony\Component\Yaml\Yaml;
 
 /**
- * The app's installer: its name and the steps to go through, read from the
- * "manifest.yml" in the installer folder. Each step points to a Markdown file
- * next to it, whose front matter can set the step's title.
+ * The app's installer: its name, the version it installs, links to its help
+ * and source, and the steps to go through, read from the "manifest.yml" in
+ * the installer folder. Each step points to a Markdown file next to it, whose
+ * front matter can set the step's title.
  */
 readonly class Manifest
 {
     /**
      * @param  list<Step>  $steps
+     * @param  list<array{label: string, url: string}>  $links
      */
     public function __construct(
         public string $name,
         public array $steps,
+        public ?string $version = null,
+        public array $links = [],
     ) {}
 
     public static function fromPath(string $path): self
@@ -60,7 +64,38 @@ readonly class Manifest
             throw InvalidManifestException::invalid($file, 'the step ids '.implode(', ', $duplicates).' are used more than once.');
         }
 
-        return new self($manifest['name'], $steps);
+        if (isset($manifest['version']) && ! is_string($manifest['version']) && ! is_int($manifest['version']) && ! is_float($manifest['version'])) {
+            throw InvalidManifestException::invalid($file, 'the "version" must be a string.');
+        }
+
+        return new self(
+            name: $manifest['name'],
+            steps: $steps,
+            version: isset($manifest['version']) ? (string) $manifest['version'] : null,
+            links: static::links($file, $manifest['links'] ?? []),
+        );
+    }
+
+    /**
+     * @return list<array{label: string, url: string}>
+     */
+    protected static function links(string $file, mixed $links): array
+    {
+        if (! is_array($links) || ! array_is_list($links)) {
+            throw InvalidManifestException::invalid($file, 'the "links" must be a list of links with a "label" and a "url".');
+        }
+
+        return array_map(function (mixed $link, int $index) use ($file): array {
+            if (! is_array($link) || ! is_string($link['label'] ?? null) || ! is_string($link['url'] ?? null)) {
+                throw InvalidManifestException::invalid($file, "link {$index} needs a \"label\" and a \"url\".");
+            }
+
+            if (! preg_match('#^https?://#i', $link['url'])) {
+                throw InvalidManifestException::invalid($file, "the url of link \"{$link['label']}\" must start with http:// or https://.");
+            }
+
+            return ['label' => $link['label'], 'url' => $link['url']];
+        }, $links, array_keys($links));
     }
 
     /**

@@ -115,3 +115,14 @@ it("doesn't skip steps unless skipping is allowed", function () {
         ->call('skip')
         ->assertSet('current', 1);
 });
+
+it('shows the version and links in the header', function () {
+    config(['installer.path' => installerFolder([
+        'manifest.yml' => "name: Acme\nversion: '2.1'\nlinks:\n  - { label: Help, url: 'https://acme.test/docs' }\nsteps:\n  - { id: welcome, file: welcome.md }",
+        'welcome.md' => 'Hello',
+    ])]);
+
+    Livewire::test(Installer::class)
+        ->assertSee('2.1')
+        ->assertSeeHtml('<a href="https://acme.test/docs" target="_blank" rel="noopener noreferrer" class="btn btn-ghost btn-sm">Help</a>');
+});
