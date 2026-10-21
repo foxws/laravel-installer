@@ -24,10 +24,10 @@ enum CheckStatus: string
     public function label(): string
     {
         return match ($this) {
-            self::Ok => 'OK',
-            self::Warn => 'Warning',
-            self::Fail => 'Failed',
-            self::Unknown => 'Unknown',
+            self::Ok => __('OK'),
+            self::Warn => __('Warning'),
+            self::Fail => __('Failed'),
+            self::Unknown => __('Unknown'),
         };
     }
 
