@@ -18,7 +18,12 @@ export default defineConfig({
     ],
     server: {
         watch: {
-            ignored: ['**/storage/framework/views/**'],
+            ignored: [
+                '**/.agents/**',
+                '**/.claude/**',
+                '**/storage/framework/views/**',
+                '**/vendor/**',
+            ],
         },
     },
 });
