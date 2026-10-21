@@ -4,6 +4,9 @@
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
+        <meta name="description" content="{{ $description ?? 'Install the app and its Podman services on this host.' }}">
+        <meta name="robots" content="noindex, nofollow">
+
         <title>{{ $title ?? config('app.name') }}</title>
 
         @fonts

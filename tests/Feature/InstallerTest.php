@@ -31,7 +31,8 @@ it('shows the first step', function () {
         ->get('/')
         ->assertOk()
         ->assertSee('Example installer')
-        ->assertSee('This installer sets up the app');
+        ->assertSee('This installer sets up the app')
+        ->assertSee('<meta name="robots" content="noindex, nofollow">', false);
 });
 
 it('moves through the steps', function () {
