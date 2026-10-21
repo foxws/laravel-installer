@@ -1,9 +1,14 @@
-# The installer for your app. Copy this folder into your app as "installer/"
-# and build your installer image from ghcr.io/foxws/laravel-installer.
+# The installer for your app. Copy this folder into your app as "installer/":
+# ghcr.io/foxws/laravel-installer then installs the app from its repository,
+# or build your own installer image on top of it with this folder in it.
 name: Example
 
-# Shown in the header: the version this installs, and links that open in a
-# new tab.
+# The installer versions this installer works with, checked before it starts.
+# installer: '^2.0'
+
+# Shown in the header: what the app is, the version this installs, and links
+# that open in a new tab.
+# description: A short line about the app
 # version: '1.0'
 # links:
 #   - { label: Help, url: 'https://example.com/docs' }
