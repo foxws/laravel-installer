@@ -37,6 +37,16 @@ it('reads the version and links', function () {
         ->and($manifest->links)->toBe([['label' => 'Help', 'url' => 'https://example.com/docs']]);
 });
 
+it('reads the description and the installer versions it supports', function () {
+    $manifest = Manifest::fromPath(installerFolder([
+        'manifest.yml' => "name: App\ndescription: A demo app\ninstaller: '^2.0'\nsteps:\n  - { id: first, file: a.md }",
+        'a.md' => 'Body',
+    ]));
+
+    expect($manifest->description)->toBe('A demo app')
+        ->and($manifest->installer)->toBe('^2.0');
+});
+
 it('has no version or links unless the manifest sets them', function () {
     $manifest = Manifest::fromPath(installerFolder([
         'manifest.yml' => "name: App\nsteps:\n  - { id: first, file: a.md }",
@@ -73,6 +83,8 @@ it('rejects invalid manifests', function (array $files, string $reason) {
     'lower case env' => [['manifest.yml' => "name: App\nsteps:\n  - { id: first, type: command, file: a.md, run: { container: app, command: [x], env: { token: y } } }", 'a.md' => ''], 'must map upper case names'],
     'link without url' => [['manifest.yml' => "name: App\nlinks:\n  - { label: Help }\nsteps:\n  - { id: first, file: a.md }", 'a.md' => ''], 'link 0 needs a "label" and a "url"'],
     'javascript link' => [['manifest.yml' => "name: App\nlinks:\n  - { label: Help, url: 'javascript:alert(1)' }\nsteps:\n  - { id: first, file: a.md }", 'a.md' => ''], 'must start with http:// or https://'],
+    'invalid installer range' => [['manifest.yml' => "name: App\ninstaller: 'two'\nsteps:\n  - { id: first, file: a.md }", 'a.md' => ''], "version range two isn't valid"],
+    'description as a list' => [['manifest.yml' => "name: App\ndescription: [a]\nsteps:\n  - { id: first, file: a.md }", 'a.md' => ''], 'the "description" must be a string'],
     'duplicate ids' => [['manifest.yml' => "name: App\nsteps:\n  - { id: first, file: a.md }\n  - { id: first, file: a.md }", 'a.md' => ''], 'first are used more than once'],
 ]);
 

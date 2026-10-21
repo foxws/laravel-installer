@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace App\Providers;
 
+use App\Installer\InstallerMode;
 use App\Installer\Manifest;
-use Illuminate\Support\Facades\Config;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -15,7 +15,7 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        $this->app->singleton(Manifest::class, fn (): Manifest => Manifest::fromPath(Config::string('installer.path')));
+        $this->app->scoped(Manifest::class, fn (): Manifest => Manifest::fromPath(InstallerMode::manifestPath()));
     }
 
     /**

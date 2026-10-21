@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Installer;
 
+use Composer\Semver\VersionParser;
 use Illuminate\Support\Str;
 use League\CommonMark\Environment\Environment;
 use League\CommonMark\Extension\CommonMark\CommonMarkCoreExtension;
@@ -13,10 +14,12 @@ use League\CommonMark\Extension\GithubFlavoredMarkdownExtension;
 use League\CommonMark\MarkdownConverter;
 use Symfony\Component\Yaml\Exception\ParseException;
 use Symfony\Component\Yaml\Yaml;
+use UnexpectedValueException;
 
 /**
- * The app's installer: its name, the version it installs, links to its help
- * and source, and the steps to go through, read from the "manifest.yml" in
+ * The app's installer: its name and description, the version it installs,
+ * the versions of the installer it supports, links to its help and source,
+ * and the steps to go through, read from the "manifest.yml" in
  * the installer folder. Each step points to a Markdown file next to it, whose
  * front matter can set the step's title.
  */
@@ -31,6 +34,8 @@ readonly class Manifest
         public array $steps,
         public ?string $version = null,
         public array $links = [],
+        public ?string $description = null,
+        public ?string $installer = null,
     ) {}
 
     public static function fromPath(string $path): self
@@ -68,12 +73,40 @@ readonly class Manifest
             throw InvalidManifestException::invalid($file, 'the "version" must be a string.');
         }
 
+        if (isset($manifest['description']) && ! is_string($manifest['description'])) {
+            throw InvalidManifestException::invalid($file, 'the "description" must be a string.');
+        }
+
         return new self(
             name: $manifest['name'],
             steps: $steps,
             version: isset($manifest['version']) ? (string) $manifest['version'] : null,
             links: static::links($file, $manifest['links'] ?? []),
+            description: $manifest['description'] ?? null,
+            installer: static::installerConstraint($file, $manifest['installer'] ?? null),
         );
+    }
+
+    /**
+     * The versions of the installer the app supports, such as "^2.0".
+     */
+    protected static function installerConstraint(string $file, mixed $constraint): ?string
+    {
+        if ($constraint === null) {
+            return null;
+        }
+
+        if (! is_string($constraint)) {
+            throw InvalidManifestException::invalid($file, 'the "installer" must be a version range, such as \'^2.0\'.');
+        }
+
+        try {
+            (new VersionParser)->parseConstraints($constraint);
+        } catch (UnexpectedValueException) {
+            throw InvalidManifestException::invalid($file, "the \"installer\" version range {$constraint} isn't valid.");
+        }
+
+        return $constraint;
     }
 
     /**
@@ -247,8 +280,8 @@ readonly class Manifest
     }
 
     /**
-     * The steps come from the app's own image, but raw HTML is stripped
-     * anyway, since the installer runs with access to the Podman socket.
+     * The steps come from the app's own image or repository, so raw HTML is
+     * stripped, since the installer runs with access to the Podman socket.
      */
     protected static function markdownConverter(): MarkdownConverter
     {

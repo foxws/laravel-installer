@@ -18,6 +18,41 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Version
+    |--------------------------------------------------------------------------
+    |
+    | The installer's own version, set by the image. A manifest can require
+    | a version range with its "installer" key, such as "^2.0".
+    |
+    */
+
+    'version' => env('INSTALLER_VERSION', 'dev'),
+
+    /*
+    |--------------------------------------------------------------------------
+    | Source
+    |--------------------------------------------------------------------------
+    |
+    | Without an installer folder of its own, the installer asks for the
+    | app's git repository, clones the chosen branch, tag or commit into the
+    | workspace, and reads the manifest from the folder in it. The source
+    | prefills the repository's address, and the token lets it clone a
+    | private one. The token is only sent as a header, never stored.
+    |
+    */
+
+    'source' => env('INSTALLER_SOURCE'),
+
+    'source_folder' => env('INSTALLER_SOURCE_FOLDER', 'installer'),
+
+    'git' => env('INSTALLER_GIT', 'git'),
+
+    'git_token' => env('INSTALLER_GIT_TOKEN'),
+
+    'git_timeout' => (int) env('INSTALLER_GIT_TIMEOUT', 300),
+
+    /*
+    |--------------------------------------------------------------------------
     | Podman Binary
     |--------------------------------------------------------------------------
     |
@@ -146,5 +181,17 @@ return [
     */
 
     'dbus_send' => env('INSTALLER_DBUS_SEND', 'dbus-send'),
+
+    /*
+    |--------------------------------------------------------------------------
+    | D-Bus Address
+    |--------------------------------------------------------------------------
+    |
+    | The address of the host user's D-Bus session bus, which the installer
+    | checks before it starts an installer with a services step.
+    |
+    */
+
+    'dbus_address' => env('DBUS_SESSION_BUS_ADDRESS'),
 
 ];
