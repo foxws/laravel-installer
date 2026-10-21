@@ -124,5 +124,6 @@ it('shows the version and links in the header', function () {
 
     Livewire::test(Installer::class)
         ->assertSee('2.1')
-        ->assertSeeHtml('<a href="https://acme.test/docs" target="_blank" rel="noopener noreferrer" class="btn btn-ghost btn-sm">Help</a>');
+        ->assertSeeHtml('<a href="https://acme.test/docs" target="_blank" rel="noopener noreferrer" class="btn btn-ghost btn-sm">Help</a>')
+        ->assertDontSee('Choose another version');
 });
