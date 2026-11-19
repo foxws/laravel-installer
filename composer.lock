@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "4b181f2b7ffe0a907461cd195cddd4d9",
+    "content-hash": "d990c3114644bba8384e900031033f32",
     "packages": [
         {
             "name": "brick/math",
@@ -513,26 +513,26 @@
         },
         {
             "name": "foxws/laravel-podman",
-            "version": "6.1.0",
+            "version": "7.0.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/foxws/laravel-podman.git",
-                "reference": "d8707d4d13a380387ea7d6e0ca29ed3c711a6b1e"
+                "reference": "6e5a666e42b19590b767124c441d4a9a0821721c"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/foxws/laravel-podman/zipball/d8707d4d13a380387ea7d6e0ca29ed3c711a6b1e",
-                "reference": "d8707d4d13a380387ea7d6e0ca29ed3c711a6b1e",
+                "url": "https://api.github.com/repos/foxws/laravel-podman/zipball/6e5a666e42b19590b767124c441d4a9a0821721c",
+                "reference": "6e5a666e42b19590b767124c441d4a9a0821721c",
                 "shasum": ""
             },
             "require": {
                 "composer-runtime-api": "^2.0",
-                "illuminate/console": "^11.0|^12.0|^13.0",
-                "illuminate/contracts": "^11.0||^12.0||^13.0",
-                "illuminate/filesystem": "^11.0|^12.0|^13.0",
-                "illuminate/process": "^11.0|^12.0|^13.0",
-                "illuminate/support": "^11.0|^12.0|^13.0",
-                "php": "^8.4",
+                "illuminate/console": "^13.0",
+                "illuminate/contracts": "^13.0",
+                "illuminate/filesystem": "^13.0",
+                "illuminate/process": "^13.0",
+                "illuminate/support": "^13.0",
+                "php": "^8.5",
                 "spatie/laravel-package-tools": "^1.16",
                 "symfony/console": "^6.0|^7.0|^8.0"
             },
@@ -541,10 +541,10 @@
                 "larastan/larastan": "^3.0",
                 "laravel/pint": "^1.14",
                 "nunomaduro/collision": "^8.8",
-                "orchestra/testbench": "^11.0.0||^10.0.0||^9.0.0",
-                "pestphp/pest": "^4.0",
-                "pestphp/pest-plugin-arch": "^4.0",
-                "pestphp/pest-plugin-laravel": "^4.0",
+                "orchestra/testbench": "^11.0",
+                "pestphp/pest": "^5.0",
+                "pestphp/pest-plugin-arch": "^5.0",
+                "pestphp/pest-plugin-laravel": "^5.0",
                 "phpstan/extension-installer": "^1.4",
                 "phpstan/phpstan-deprecation-rules": "^2.0",
                 "phpstan/phpstan-phpunit": "^2.0",
@@ -590,7 +590,7 @@
             ],
             "support": {
                 "issues": "https://github.com/foxws/laravel-podman/issues",
-                "source": "https://github.com/foxws/laravel-podman/tree/6.1.0"
+                "source": "https://github.com/foxws/laravel-podman/tree/7.0.0"
             },
             "funding": [
                 {
@@ -598,7 +598,8 @@
                     "type": "github"
                 }
             ],
-            "time": "2026-10-20T08:35:22+00:00"
+            "time": "2026-11-19T09:45:56+00:00",
+            "published-time": "2026-11-19T09:58:14+00:00"
         },
         {
             "name": "fruitcake/php-cors",
