@@ -6,6 +6,9 @@ You start the installer container once. It walks you through installing an app i
 
 It supports rootless Podman with Quadlets today: from then on, systemd runs the app and [`lpod`](https://github.com/foxws/lpod) manages it. Docker and Docker Compose are planned.
 
+> [!IMPORTANT]
+> [foxws/pods](https://github.com/foxws/pods) is considered the replacement for this installer, and the focus is moving there. Pods installs applications from Git as plain Quadlet files, runs their setup steps from each app's `pods.yml`, and keeps managing them afterwards on one or more hosts over SSH. [lpod](https://github.com/foxws/lpod) works best together with Pods.
+
 > [!WARNING]
 > Early work in progress. Only the wizard, the manifest, the requirements and command steps, and the one-time link exist so far.
 
